@@ -1,22 +1,26 @@
 package com.wehuibao;
 
 import android.os.Bundle;
-import android.app.Activity;
-import android.view.Menu;
 
-public class DocListActivity extends Activity {
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+
+public class DocListActivity extends SherlockFragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.doc_list);
+		if (this.getSupportFragmentManager().findFragmentById(
+				android.R.id.content) == null) {
+			this.getSupportFragmentManager().beginTransaction()
+					.add(android.R.id.content, new DocListFragment()).commit();
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.doc_list, menu);
-		return true;
+		new MenuInflater(this).inflate(R.menu.doc_list, menu);
+		return false;
 	}
-
 }
