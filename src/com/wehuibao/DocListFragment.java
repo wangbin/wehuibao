@@ -17,8 +17,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -26,15 +30,17 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.gson.Gson;
 import com.wehuibao.json.Doc;
 import com.wehuibao.json.DocList;
 
-public class DocListFragment extends SherlockListFragment {
+public class DocListFragment extends SherlockListFragment implements OnClickListener {
 
 	private static final String HOT_URL = "http://wehuibao.com/api/hot/";
 	private List<Doc> docs = null;
 	private DocAdapter adapter;
+	private String start = null;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -47,6 +53,11 @@ public class DocListFragment extends SherlockListFragment {
 			new DocFetchTask().execute(HOT_URL);
 			adapter = new DocAdapter();
 		}
+		View footer = this.getActivity().getLayoutInflater().inflate(
+				R.layout.load_more, null);
+		this.getListView().addFooterView(footer);
+		TextView loadMore = (TextView) this.getActivity().findViewById(R.id.load_more);
+		loadMore.setOnClickListener(this);
 		this.setListAdapter(adapter);
 	}
 	
@@ -55,6 +66,18 @@ public class DocListFragment extends SherlockListFragment {
 	    inflater.inflate(R.menu.doc_list, menu);
 	    super.onCreateOptionsMenu(menu, inflater);
 	  }
+	
+	@Override
+	  public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_refresh) {
+			adapter.clear();
+			start = null;
+			new DocFetchTask().execute(HOT_URL);
+			
+		}
+		return super.onOptionsItemSelected(item);
+		
+	}
 
 	class DocAdapter extends ArrayAdapter<Doc> {
 
@@ -79,11 +102,6 @@ public class DocListFragment extends SherlockListFragment {
 			}
 			return row;
 		}
-		
-//		@Override
-//		public int getCount() {
-//			return docs.size();
-//		}
 	}
 
 	class DocFetchTask extends AsyncTask<String, Doc, Void> {
@@ -91,7 +109,12 @@ public class DocListFragment extends SherlockListFragment {
 		@Override
 		protected Void doInBackground(String... urls) {
 			try {
-				URL url = new URL(urls[0]);
+				String urlStr = urls[0];
+				if (start != null) {
+					Log.d("start is: ", start);
+					urlStr += "?start=" + start + "&count=-20";
+				}
+				URL url = new URL(urlStr);
 				HttpURLConnection connection = (HttpURLConnection) url
 						.openConnection();
 				connection.setReadTimeout(5000);
@@ -102,8 +125,16 @@ public class DocListFragment extends SherlockListFragment {
 				Gson gson = new Gson();
 				DocList docList = gson.fromJson(reader, DocList.class);
 				for (Doc doc : docList.items) {
+					if (doc.thumb != null && doc.thumb.image_src != null) {
+						doc.thumb.image_path = downloadDocThumbnail(
+								doc.thumb.image_src, doc.docId);
+					}
+					start = doc.docId;
+					Log.d("doc.id: ", doc.docId);
+					Log.d("doc.title", doc.title);
 					this.publishProgress(doc);
 				}
+				Log.d("start: ", start);
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -117,10 +148,6 @@ public class DocListFragment extends SherlockListFragment {
 		@Override
 		protected void onProgressUpdate(Doc... docs) {
 			for (Doc doc : docs) {
-				if (doc.thumb != null && doc.thumb.image_src != null) {
-					doc.thumb.image_path = downloadDocThumbnail(
-							doc.thumb.image_src, doc.docId);
-				}
 				adapter.add(doc);
 			}
 		}
@@ -167,6 +194,14 @@ public class DocListFragment extends SherlockListFragment {
 				return "";
 			}
 			return avatar.getAbsolutePath();
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v.getId() == R.id.load_more) {
+			//start = docs.get(docs.size() - 1).docId;
+			new DocFetchTask().execute(HOT_URL);
 		}
 	}
 }
