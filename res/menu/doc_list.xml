@@ -1,14 +1,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item android:id="@+id/menu_refresh" android:icon="@drawable/ic_menu_refresh" android:orderInCategory="200" android:showAsAction="always|withText" android:title="@string/menu_refresh">
-    </item><item android:id="@+id/menu_profile" android:icon="@android:drawable/ic_menu_info_details" android:showAsAction="never" android:title="@string/menu_profile">
-    </item><item
+    <item
+        android:id="@+id/menu_refresh"
+        android:icon="@drawable/ic_menu_refresh"
+        android:orderInCategory="200"
+        android:showAsAction="always|withText"
+        android:title="@string/menu_refresh">
+    </item>
+    <item
+        android:id="@+id/menu_profile"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:showAsAction="never"
+        android:title="@string/menu_profile">
+    </item>
+    <item
         android:id="@+id/menu_settings"
         android:icon="@android:drawable/ic_menu_preferences"
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/menu_settings"/>
-    
-    
 
 </menu>

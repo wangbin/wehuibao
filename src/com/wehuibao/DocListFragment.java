@@ -24,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.google.gson.Gson;
 import com.wehuibao.json.Doc;
 import com.wehuibao.json.DocList;
@@ -37,6 +39,9 @@ public class DocListFragment extends SherlockListFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setRetainInstance(true);
+	    setHasOptionsMenu(true);
+	    
 		if (docs == null) {
 			docs = new ArrayList<Doc>();
 			new DocFetchTask().execute(HOT_URL);
@@ -44,6 +49,12 @@ public class DocListFragment extends SherlockListFragment {
 		}
 		this.setListAdapter(adapter);
 	}
+	
+	@Override
+	  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	    inflater.inflate(R.menu.doc_list, menu);
+	    super.onCreateOptionsMenu(menu, inflater);
+	  }
 
 	class DocAdapter extends ArrayAdapter<Doc> {
 
