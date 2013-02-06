@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -23,6 +24,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -42,6 +44,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 	private String start = null;
 	private TextView loadMore;
 	private ProgressBar loadMorePB;
+	private MenuItem refresh;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -66,6 +69,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 	@Override
 	  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	    inflater.inflate(R.menu.doc_list, menu);
+	    refresh = menu.findItem(R.id.menu_refresh);
 	    super.onCreateOptionsMenu(menu, inflater);
 	  }
 	
@@ -74,6 +78,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 		if (item.getItemId() == R.id.menu_refresh) {
 			adapter.clear();
 			start = null;
+			refresh.setActionView(R.layout.refresh);
 			new DocFetchTask().execute(HOT_URL);
 			
 		}
@@ -99,6 +104,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 			if (doc.thumb != null && doc.thumb.image_path != null) {
 				Bitmap bm = BitmapFactory.decodeFile(doc.thumb.image_path);
 				thumb.setImageBitmap(bm);
+				thumb.setVisibility(View.VISIBLE);
 			} else {
 				thumb.setVisibility(View.GONE);
 			}
@@ -131,10 +137,9 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 					if (doc.thumb != null && doc.thumb.image_src != null) {
 						doc.thumb.image_path = downloadDocThumbnail(
 								doc.thumb.image_src, doc.docId);
+						Log.d("doc.image:", doc.thumb.image_path);
 					}
 					start = doc.docId;
-					Log.d("doc.id: ", doc.docId);
-					Log.d("doc.title", doc.title);
 					this.publishProgress(doc);
 				}
 				Log.d("start: ", start);
@@ -157,6 +162,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 		
 		@Override
 		protected void onPostExecute(Void unused) {
+			refresh.setActionView(null);
 			if (loadMorePB.getVisibility() == View.VISIBLE) {
 				loadMorePB.setVisibility(View.GONE);
 				loadMore.setVisibility(View.VISIBLE);
@@ -215,5 +221,13 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 			loadMorePB.setVisibility(View.VISIBLE);
 			new DocFetchTask().execute(HOT_URL);
 		}
+	}
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		Doc doc = docs.get(position);
+		Intent intent = new Intent(this.getActivity(), DocDetailActivity.class);
+		intent.putExtra(DocDetailActivity.DOC_ID, doc.docId);
+		this.startActivity(intent);
 	}
 }

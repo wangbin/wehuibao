@@ -8,5 +8,6 @@
     <string name="menu_refresh">刷新</string>
     <string name="image">图片</string>
     <string name="load_more">点击加载更多</string>
+    <string name="doc_sharers">分享此文摘的用户</string>
 
 </resources>

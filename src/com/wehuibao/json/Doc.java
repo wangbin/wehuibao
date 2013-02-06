@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Doc {
 	public String abbrev_text;
+	public String abbrev;
 	public String absolute_url;
 	public int cnt_follower;
 	@SerializedName("id")
