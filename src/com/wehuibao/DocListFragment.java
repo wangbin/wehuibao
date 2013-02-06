@@ -18,13 +18,12 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -41,6 +40,8 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 	private List<Doc> docs = null;
 	private DocAdapter adapter;
 	private String start = null;
+	private TextView loadMore;
+	private ProgressBar loadMorePB;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -56,7 +57,8 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 		View footer = this.getActivity().getLayoutInflater().inflate(
 				R.layout.load_more, null);
 		this.getListView().addFooterView(footer);
-		TextView loadMore = (TextView) this.getActivity().findViewById(R.id.load_more);
+		loadMore = (TextView) this.getActivity().findViewById(R.id.load_more);
+		loadMorePB = (ProgressBar) this.getActivity().findViewById(R.id.load_more_pb);
 		loadMore.setOnClickListener(this);
 		this.setListAdapter(adapter);
 	}
@@ -110,6 +112,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 		protected Void doInBackground(String... urls) {
 			try {
 				String urlStr = urls[0];
+				//FIXME: this not working
 				if (start != null) {
 					Log.d("start is: ", start);
 					urlStr += "?start=" + start + "&count=-20";
@@ -149,6 +152,14 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 		protected void onProgressUpdate(Doc... docs) {
 			for (Doc doc : docs) {
 				adapter.add(doc);
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(Void unused) {
+			if (loadMorePB.getVisibility() == View.VISIBLE) {
+				loadMorePB.setVisibility(View.GONE);
+				loadMore.setVisibility(View.VISIBLE);
 			}
 		}
 
@@ -200,7 +211,8 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 	@Override
 	public void onClick(View v) {
 		if (v.getId() == R.id.load_more) {
-			//start = docs.get(docs.size() - 1).docId;
+			v.setVisibility(View.GONE);
+			loadMorePB.setVisibility(View.VISIBLE);
 			new DocFetchTask().execute(HOT_URL);
 		}
 	}
