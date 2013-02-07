@@ -26,6 +26,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.gson.Gson;
 import com.wehuibao.json.Doc;
 import com.wehuibao.json.User;
@@ -37,10 +40,13 @@ public class DocDetailFragment extends SherlockFragment {
 
 	private final static String DOC_URL = "http://wehuibao.com/api/doc/";
 	private Doc doc = null;
+	private MenuItem share;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		setRetainInstance(true);
+	    setHasOptionsMenu(true);
 		View view = inflater.inflate(R.layout.doc_detail, container, false);
 		docTitle = (TextView) view.findViewById(R.id.doc_title);
 		docContent = (WebView) view.findViewById(R.id.doc_content);
@@ -51,9 +57,33 @@ public class DocDetailFragment extends SherlockFragment {
 			new FetchDocTask().execute(DOC_URL + docId);
 		}
 		return view;
-
 	}
+	
+	@Override
+	  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	    inflater.inflate(R.menu.doc_detail, menu);
+	    share = menu.findItem(R.id.menu_share);
+	    super.onCreateOptionsMenu(menu, inflater);
+	  }
 
+	@Override
+	  public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_share) {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(doc.major_title);
+			buffer.append(' ');
+			buffer.append(doc.absolute_url);
+			buffer.append(' ');
+			buffer.append(doc.abbrev_text.substring(0, 140 - doc.major_title.length()));
+			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+			sharingIntent.setType("text/plain");
+			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, doc.title);
+			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, buffer.toString());
+			this.startActivity(Intent.createChooser(sharingIntent, "∑÷œÌµΩ"));
+			
+		}
+		return super.onOptionsItemSelected(item);
+	}
 	class FetchDocTask extends AsyncTask<String, Void, Doc> {
 
 		@Override
