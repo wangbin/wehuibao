@@ -1,0 +1,21 @@
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tableRow1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingBottom="@dimen/abs__action_bar_icon_vertical_padding"
+    android:paddingLeft="@dimen/abs__action_bar_icon_vertical_padding"
+    android:paddingRight="@dimen/abs__action_bar_icon_vertical_padding"
+    android:paddingTop="@dimen/abs__action_bar_icon_vertical_padding" >
+
+        <TextView
+        android:id="@+id/sharer_name"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/arrow"
+        android:layout_weight="1"
+        android:textAlignment="gravity"
+        android:textAppearance="@style/sharer_text_appearance" />
+
+    
+
+</TableRow>

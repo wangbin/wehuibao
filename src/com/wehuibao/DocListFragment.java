@@ -41,10 +41,12 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 	private static final String HOT_URL = "http://wehuibao.com/api/hot/";
 	private List<Doc> docs = null;
 	private DocAdapter adapter;
-	private String start = null;
+	private int start = 0;
+	private Boolean hasMore = true;
 	private TextView loadMore;
 	private ProgressBar loadMorePB;
 	private MenuItem refresh;
+	private View footer;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -57,7 +59,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 			new DocFetchTask().execute(HOT_URL);
 			adapter = new DocAdapter();
 		}
-		View footer = this.getActivity().getLayoutInflater().inflate(
+		footer = this.getActivity().getLayoutInflater().inflate(
 				R.layout.load_more, null);
 		this.getListView().addFooterView(footer);
 		loadMore = (TextView) this.getActivity().findViewById(R.id.load_more);
@@ -77,7 +79,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 	  public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
 			adapter.clear();
-			start = null;
+			start = 0;
 			refresh.setActionView(R.layout.refresh);
 			new DocFetchTask().execute(HOT_URL);
 			
@@ -118,10 +120,8 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 		protected Void doInBackground(String... urls) {
 			try {
 				String urlStr = urls[0];
-				//FIXME: this not working
-				if (start != null) {
-					Log.d("start is: ", start);
-					urlStr += "?start=" + start + "&count=-20";
+				if (start != 0) {
+					urlStr += "?start=" + String.valueOf(start);
 				}
 				URL url = new URL(urlStr);
 				HttpURLConnection connection = (HttpURLConnection) url
@@ -133,16 +133,20 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 						new InputStreamReader(connection.getInputStream()));
 				Gson gson = new Gson();
 				DocList docList = gson.fromJson(reader, DocList.class);
+				reader.close();
 				for (Doc doc : docList.items) {
 					if (doc.thumb != null && doc.thumb.image_src != null) {
 						doc.thumb.image_path = downloadDocThumbnail(
 								doc.thumb.image_src, doc.docId);
 						Log.d("doc.image:", doc.thumb.image_path);
 					}
-					start = doc.docId;
 					this.publishProgress(doc);
 				}
-				Log.d("start: ", start);
+				hasMore = docList.has_more;
+				if (docList.has_more) {
+					start += 20;
+				}
+				Log.d("start: ", String.valueOf(start));
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -166,6 +170,13 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 			if (loadMorePB.getVisibility() == View.VISIBLE) {
 				loadMorePB.setVisibility(View.GONE);
 				loadMore.setVisibility(View.VISIBLE);
+			}
+			if (!hasMore) {
+				footer.setVisibility(View.GONE);
+			} else {
+				if (footer.getVisibility() == View.GONE) {
+					footer.setVisibility(View.VISIBLE);
+				}
 			}
 		}
 
@@ -191,7 +202,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 				URL url = new URL(image_url);
 				HttpURLConnection connection = (HttpURLConnection) url
 						.openConnection();
-
+				connection.setReadTimeout(50000);
 				connection.connect();
 				InputStream in = connection.getInputStream();
 				FileOutputStream fos = new FileOutputStream(avatar.getPath());
@@ -203,6 +214,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 					}
 					bos.flush();
 				} finally {
+					in.close();
 					fos.getFD().sync();
 					bos.close();
 				}

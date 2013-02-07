@@ -1,8 +1,8 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollView1"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:padding="@dimen/abs__action_bar_subtitle_bottom_margin" >
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -12,8 +12,9 @@
 
         <TextView
             android:id="@+id/doc_title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#FFF"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <WebView
@@ -24,15 +25,18 @@
 
         <TextView
             android:id="@+id/doc_sharers"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/doc_sharers"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TableLayout
-            android:id="@+id/sharers"
+            android:id="@+id/sharerTable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
+
         </TableLayout>
+
     </LinearLayout>
+
 </ScrollView>
