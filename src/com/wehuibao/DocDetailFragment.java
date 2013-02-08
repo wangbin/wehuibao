@@ -140,8 +140,12 @@ public class DocDetailFragment extends SherlockFragment {
 						public void onClick(View v) {
 							// TODO Auto-generated method stub
 							String userId = (String) v.getTag();
-							Toast.makeText(getActivity(), userId,
-									Toast.LENGTH_LONG).show();
+							Intent profileIntent = new Intent(
+									DocDetailFragment.this.getActivity(),
+									ProfileActivity.class);
+							profileIntent.putExtra(ProfileActivity.USERID,
+									userId);
+							DocDetailFragment.this.startActivity(profileIntent);
 						}
 					});
 					sharerTable.addView(row, new TableLayout.LayoutParams(
