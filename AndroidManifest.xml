@@ -26,6 +26,7 @@
         </activity>
         <activity android:name="DocDetailActivity"></activity>
         <activity android:name="ProfileActivity"></activity>
+        <activity android:name="AuthActivity"></activity>
     </application>
 
 </manifest>

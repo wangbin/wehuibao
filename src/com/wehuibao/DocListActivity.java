@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public class DocListActivity extends SherlockFragmentActivity {
+	public static final String LIST_TYPE = "LIST_TYPE";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

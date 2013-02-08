@@ -7,20 +7,12 @@
         android:showAsAction="always|withText"
         android:title="@string/menu_refresh">
     </item>
-    <item
-        android:id="@+id/menu_hot"
-        android:showAsAction="ifRoom"
-        android:title="@string/menu_hot">
-    </item>
-    <item
-        android:id="@+id/menu_home"
-        android:title="@string/menu_home">
-    </item>
-    <item
+    <item android:id="@+id/menu_hot" android:title="@string/menu_hot" android:showAsAction="ifRoom"></item><item
         android:id="@+id/menu_profile"
         android:icon="@android:drawable/ic_menu_info_details"
         android:showAsAction="never"
         android:title="@string/menu_profile">
     </item>
+    
 
 </menu>

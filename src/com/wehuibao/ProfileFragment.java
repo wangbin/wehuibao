@@ -12,10 +12,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +37,7 @@ public class ProfileFragment extends SherlockFragment {
 	private TextView profileName;
 	private TextView profileDesc;
 	private TableLayout authServices;
+	private String cookie;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,11 +50,113 @@ public class ProfileFragment extends SherlockFragment {
 		profileName = (TextView) view.findViewById(R.id.profileName);
 		profileDesc = (TextView) view.findViewById(R.id.profileDescription);
 		authServices = (TableLayout) view.findViewById(R.id.auth_services);
-		if (authList == null) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getActivity()
+						.getApplicationContext());
+		cookie = prefs.getString("cookie", null);
+		if (userId != null && authList == null) {
 			String url = "http://wehuibao.com/api/user/" + userId;
 			new FetchUserTask().execute(url);
+		} else {
+			buildBindingTable();
 		}
 		return view;
+	}
+
+	private void buildBindingTable() {
+		TableRow sinaRow = (TableRow) ProfileFragment.this.getActivity()
+				.getLayoutInflater()
+				.inflate(R.layout.auth_service_table_row, null);
+		TextView authServiceName = (TextView) sinaRow
+				.findViewById(R.id.auth_service_name);
+		authServiceName.setText("ÐÂÀËÎ¢²©");
+		TextView authStatus = (TextView) sinaRow.findViewById(R.id.auth_status);
+		authStatus
+				.setText(Html
+						.fromHtml("<a href=\"http://wehuibao.com/apilogin/sina2/\">µÇÂ¼</a>"));
+		sinaRow.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent authIntent = new Intent(getActivity(),
+						AuthActivity.class);
+				authIntent.putExtra(AuthFragment.AUTH_SERVICE, "sina2");
+				startActivity(authIntent);
+
+			}
+		});
+		authServices.addView(sinaRow, new TableLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		TableRow tencentRow = (TableRow) ProfileFragment.this.getActivity()
+				.getLayoutInflater()
+				.inflate(R.layout.auth_service_table_row, null);
+		authServiceName = (TextView) tencentRow
+				.findViewById(R.id.auth_service_name);
+		authServiceName.setText("ÌÚÑ¶Î¢²©");
+		authStatus = (TextView) tencentRow.findViewById(R.id.auth_status);
+		authStatus
+				.setText(Html
+						.fromHtml("<a href=\"http://wehuibao.com/apilogin/qq/\">µÇÂ¼</a>"));
+		tencentRow.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent authIntent = new Intent(getActivity(),
+						AuthActivity.class);
+				authIntent.putExtra(AuthFragment.AUTH_SERVICE, "qq");
+				startActivity(authIntent);
+
+			}
+		});
+		authServices.addView(tencentRow, new TableLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		TableRow doubanRow = (TableRow) ProfileFragment.this.getActivity()
+				.getLayoutInflater()
+				.inflate(R.layout.auth_service_table_row, null);
+		authServiceName = (TextView) doubanRow
+				.findViewById(R.id.auth_service_name);
+		authServiceName.setText("¶¹°ê");
+		authStatus = (TextView) doubanRow.findViewById(R.id.auth_status);
+		authStatus
+				.setText(Html
+						.fromHtml("<a href=\"http://wehuibao.com/apilogin/douban/\">µÇÂ¼</a>"));
+		doubanRow.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent authIntent = new Intent(getActivity(),
+						AuthActivity.class);
+				authIntent.putExtra(AuthFragment.AUTH_SERVICE, "douban");
+				startActivity(authIntent);
+
+			}
+		});
+		authServices.addView(doubanRow, new TableLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		TableRow fanfouRow = (TableRow) ProfileFragment.this.getActivity()
+				.getLayoutInflater()
+				.inflate(R.layout.auth_service_table_row, null);
+		authServiceName = (TextView) fanfouRow
+				.findViewById(R.id.auth_service_name);
+		authServiceName.setText("·¹·ñ");
+		authStatus = (TextView) fanfouRow.findViewById(R.id.auth_status);
+		authStatus
+				.setText(Html
+						.fromHtml("<a href=\"http://wehuibao.com/apilogin/fanfou/\">µÇÂ¼</a>"));
+		fanfouRow.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent authIntent = new Intent(getActivity(),
+						AuthActivity.class);
+				authIntent.putExtra(AuthFragment.AUTH_SERVICE, "fanfou");
+				startActivity(authIntent);
+
+			}
+		});
+		authServices.addView(fanfouRow, new TableLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+
 	}
 
 	class FetchUserTask extends AsyncTask<String, Void, AuthList> {
@@ -66,6 +171,9 @@ public class ProfileFragment extends SherlockFragment {
 						.openConnection();
 				connection.setReadTimeout(5000);
 				connection.setRequestMethod("GET");
+				if (cookie != null) {
+					connection.setRequestProperty("Cookie", cookie);
+				}
 				connection.connect();
 				BufferedReader reader = new BufferedReader(
 						new InputStreamReader(connection.getInputStream()));
@@ -184,8 +292,10 @@ public class ProfileFragment extends SherlockFragment {
 					public void onClick(View v) {
 						String authUrl = (String) v.getTag();
 						if (!authUrl.startsWith("http://")) {
-							Intent authIntent = new Intent(getActivity(), AuthActivity.class);
-							authIntent.putExtra(AuthFragment.AUTH_SERVICE, authUrl);
+							Intent authIntent = new Intent(getActivity(),
+									AuthActivity.class);
+							authIntent.putExtra(AuthFragment.AUTH_SERVICE,
+									authUrl);
 							startActivity(authIntent);
 						} else {
 							Intent browserIntent = new Intent(

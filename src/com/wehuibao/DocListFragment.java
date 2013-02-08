@@ -14,10 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,9 +38,11 @@ import com.google.gson.Gson;
 import com.wehuibao.json.Doc;
 import com.wehuibao.json.DocList;
 
-public class DocListFragment extends SherlockListFragment implements OnClickListener {
+public class DocListFragment extends SherlockListFragment implements
+		OnClickListener {
 
 	private static final String HOT_URL = "http://wehuibao.com/api/hot/";
+	private static final String DOC_LIST_URL = "http://wehuibao.com/api/doclist/";
 	private List<Doc> docs = null;
 	private DocAdapter adapter;
 	private int start = 0;
@@ -47,52 +51,118 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 	private ProgressBar loadMorePB;
 	private MenuItem refresh;
 	private View footer;
+	private String listUrl;
+	private ListType lt = null;
+	private String userId = null;
+	private String cookie;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setRetainInstance(true);
-	    setHasOptionsMenu(true);
-	    
+		setHasOptionsMenu(true);
+
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getActivity()
+						.getApplicationContext());
+		cookie = prefs.getString("cookie", null);
+
+		Intent intent = this.getActivity().getIntent();
+		String listType = intent.getStringExtra(DocListActivity.LIST_TYPE);
+		if (listType != null) {
+			lt = ListType.getListType(listType);
+		} else {
+			if (cookie != null) {
+				lt = ListType.ME;
+			} else {
+				lt = ListType.HOT;
+			}
+		}
+		
+		switch (lt) {
+		case ME:
+			userId = "@me";
+			listUrl = DOC_LIST_URL + userId;
+			break;
+		case OTHER:
+			userId = listType;
+			listUrl = DOC_LIST_URL + userId;
+			break;
+		default:
+			listUrl = HOT_URL;
+		}
+
 		if (docs == null) {
 			docs = new ArrayList<Doc>();
-			new DocFetchTask().execute(HOT_URL);
+			new DocFetchTask().execute(listUrl);
 			adapter = new DocAdapter();
 		}
-		footer = this.getActivity().getLayoutInflater().inflate(
-				R.layout.load_more, null);
+		footer = this.getActivity().getLayoutInflater()
+				.inflate(R.layout.load_more, null);
 		this.getListView().addFooterView(footer);
 		loadMore = (TextView) this.getActivity().findViewById(R.id.load_more);
-		loadMorePB = (ProgressBar) this.getActivity().findViewById(R.id.load_more_pb);
+		loadMorePB = (ProgressBar) this.getActivity().findViewById(
+				R.id.load_more_pb);
 		loadMore.setOnClickListener(this);
 		this.setListAdapter(adapter);
 	}
-	
+
 	@Override
-	  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-	    inflater.inflate(R.menu.doc_list, menu);
-	    refresh = menu.findItem(R.id.menu_refresh);
-	    refresh.setActionView(R.layout.refresh);
-	    super.onCreateOptionsMenu(menu, inflater);
-	  }
-	
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		switch (lt) {
+		case ME:
+			inflater.inflate(R.menu.me, menu);
+			break;
+		case OTHER:
+			inflater.inflate(R.menu.doc_list, menu);
+			break;
+		default:
+			inflater.inflate(R.menu.hot, menu);
+		}
+
+		//inflater.inflate(R.menu.doc_list, menu);
+		refresh = menu.findItem(R.id.menu_refresh);
+		refresh.setActionView(R.layout.refresh);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
 	@Override
-	  public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
 			adapter.clear();
 			start = 0;
 			refresh.setActionView(R.layout.refresh);
 			new DocFetchTask().execute(HOT_URL);
-			
+		}
+		if (item.getItemId() == R.id.menu_home) {
+			if (cookie != null) {
+				Intent homeIntent = new Intent(getActivity(), DocListActivity.class);
+				homeIntent.putExtra(DocListActivity.LIST_TYPE, ListType.ME.toString());
+				startActivity(homeIntent);
+			} else {
+				Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
+				startActivity(profileIntent);
+			}
+		}
+		if (item.getItemId() == R.id.menu_hot) {
+			Intent hotIntent = new Intent(getActivity(), DocListActivity.class);
+			hotIntent.putExtra(DocListActivity.LIST_TYPE, ListType.HOT.toString());
+			startActivity(hotIntent);
+		}
+		if (item.getItemId() == R.id.menu_profile) {
+			Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
+			profileIntent.putExtra(ProfileActivity.USERID, userId);
+			startActivity(profileIntent);
 		}
 		return super.onOptionsItemSelected(item);
-		
+
 	}
 
 	class DocAdapter extends ArrayAdapter<Doc> {
 
 		public DocAdapter() {
-			super(DocListFragment.this.getActivity(), R.layout.doc_row, R.id.doc_title, docs);
+			super(DocListFragment.this.getActivity(), R.layout.doc_row,
+					R.id.doc_title, docs);
 		}
 
 		@Override
@@ -129,6 +199,9 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 						.openConnection();
 				connection.setReadTimeout(5000);
 				connection.setRequestMethod("GET");
+				if (cookie != null) {
+					connection.setRequestProperty("Cookie", cookie);
+				}
 				connection.connect();
 				BufferedReader reader = new BufferedReader(
 						new InputStreamReader(connection.getInputStream()));
@@ -164,7 +237,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 				adapter.add(doc);
 			}
 		}
-		
+
 		@Override
 		protected void onPostExecute(Void unused) {
 			refresh.setActionView(null);
@@ -235,7 +308,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 			new DocFetchTask().execute(HOT_URL);
 		}
 	}
-	
+
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Doc doc = docs.get(position);
