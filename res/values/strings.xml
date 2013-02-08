@@ -21,5 +21,6 @@
     <string name="user_home">TA的主页</string>
     <string name="menu_home">个人主页</string>
     <string name="menu_hot">热点</string>
+    <string name="logout">退出登录</string>
 
 </resources>

@@ -3,7 +3,6 @@
     <item
         android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_menu_refresh"
-        android:orderInCategory="200"
         android:showAsAction="always|withText"
         android:title="@string/menu_refresh">
     </item>
@@ -14,6 +13,7 @@
     </item>
     <item
         android:id="@+id/menu_home"
+        android:showAsAction="ifRoom"
         android:title="@string/menu_home">
     </item>
     <item

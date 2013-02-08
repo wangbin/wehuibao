@@ -21,8 +21,10 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -32,12 +34,15 @@ import com.google.gson.Gson;
 import com.wehuibao.json.Auth;
 import com.wehuibao.json.AuthList;
 
-public class ProfileFragment extends SherlockFragment {
+public class ProfileFragment extends SherlockFragment implements OnClickListener {
 	private AuthList authList = null;
 	private TextView profileName;
 	private TextView profileDesc;
+	private Button homeButton;
+	private Button logoutButton;
 	private TableLayout authServices;
 	private String cookie;
+	private static final String LOGOUT_URL = "http://wehuibao.com/api/logout";
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,6 +55,8 @@ public class ProfileFragment extends SherlockFragment {
 		profileName = (TextView) view.findViewById(R.id.profileName);
 		profileDesc = (TextView) view.findViewById(R.id.profileDescription);
 		authServices = (TableLayout) view.findViewById(R.id.auth_services);
+		homeButton = (Button) view.findViewById(R.id.homeButton);
+		logoutButton = (Button) view.findViewById(R.id.logout);
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity()
 						.getApplicationContext());
@@ -59,6 +66,10 @@ public class ProfileFragment extends SherlockFragment {
 			new FetchUserTask().execute(url);
 		} else {
 			buildBindingTable();
+		}
+		if (cookie != null) {
+			logoutButton.setVisibility(View.VISIBLE);
+			logoutButton.setOnClickListener(this);
 		}
 		return view;
 	}
@@ -243,6 +254,19 @@ public class ProfileFragment extends SherlockFragment {
 		@Override
 		protected void onPostExecute(AuthList authList) {
 			ProfileFragment.this.authList = authList;
+			homeButton.setText(authList.name + "µÄÖ÷Ò³");
+			homeButton.setVisibility(View.VISIBLE);
+			homeButton.setTag(authList.userId);
+			homeButton.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					String userId = (String) v.getTag();
+					Intent listIntent = new Intent(getActivity(), DocListActivity.class);
+					listIntent.putExtra(DocListActivity.LIST_TYPE, userId);
+					startActivity(listIntent);
+				}	
+			});
 			profileName.setText(authList.name);
 			if (profile_image_path != null) {
 				BitmapDrawable avatar = new BitmapDrawable(
@@ -309,6 +333,52 @@ public class ProfileFragment extends SherlockFragment {
 				authServices.addView(row, new TableLayout.LayoutParams(
 						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			}
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v.getId() == R.id.logout) {
+			new LogOutTask().execute();
+		}	
+	}
+	
+	class LogOutTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			if (cookie == null) {
+				return null;
+			}
+			try {
+				URL url = new URL(LOGOUT_URL);
+				HttpURLConnection connection = (HttpURLConnection) url
+						.openConnection();
+				connection.setReadTimeout(5000);
+				connection.setRequestMethod("GET");
+					connection.setRequestProperty("Cookie", cookie);
+				connection.connect();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(connection.getInputStream()));
+				reader.close();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void unUsed) {
+			SharedPreferences prefs = PreferenceManager
+					.getDefaultSharedPreferences(getActivity().getApplicationContext());
+			prefs.edit().remove("cookie").commit();
+			Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
+			profileIntent.putExtra(ProfileActivity.USERID, authList.userId);
+			startActivity(profileIntent);
 		}
 	}
 }

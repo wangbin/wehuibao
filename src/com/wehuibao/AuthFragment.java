@@ -10,6 +10,7 @@ import java.net.URL;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -55,7 +56,7 @@ public class AuthFragment extends SherlockFragment {
 		authWeb.loadUrl(url);
 		return view;
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -68,53 +69,58 @@ public class AuthFragment extends SherlockFragment {
 		cookieSyncMAnager.stopSync();
 	}
 
-	private void goHome() {
-		cookieSyncMAnager.sync();
-		cookie = cookieManager.getCookie(BASE_URL);
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(this.getActivity().getApplicationContext());
-		prefs.edit().putString("cookie", cookie).commit();
-		verifyCredentials();
-		Intent intent = new Intent(this.getActivity(), ProfileActivity.class);
-		if (credential != null) {
-			intent.putExtra(ProfileActivity.USERID, credential.userId);
-		}
-		this.startActivity(intent);
-	}
-	
-	private void verifyCredentials() {
-		
-		try {
-			URL url = new URL(VERIFY_URL);
-			HttpURLConnection connection = (HttpURLConnection) url
-					.openConnection();
-			connection.setReadTimeout(5000);
-			connection.setRequestMethod("GET");
-			connection.connect();
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(connection.getInputStream()));
-			Gson gson = new Gson();
-			credential = gson.fromJson(reader, Credential.class);
-			reader.close();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-	}
-
 	class AuthClient extends WebViewClient {
 
 		@Override
 		public void onPageStarted(WebView view, String url, Bitmap favicon) {
 			super.onPageStarted(view, url, favicon);
 			if (url.equals(AUTH_OK_URL)) {
-				goHome();
+				new VerifyCredentialsTask().execute();
 			}
 		}
+	}
+
+	class VerifyCredentialsTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			cookieSyncMAnager.sync();
+			cookie = cookieManager.getCookie(BASE_URL);
+			SharedPreferences prefs = PreferenceManager
+					.getDefaultSharedPreferences(getActivity()
+							.getApplicationContext());
+			prefs.edit().putString("cookie", cookie).commit();
+			try {
+				URL url = new URL(VERIFY_URL);
+				HttpURLConnection connection = (HttpURLConnection) url
+						.openConnection();
+				connection.setReadTimeout(5000);
+				connection.setRequestMethod("GET");
+				connection.setRequestProperty("Cookie", cookie);
+				connection.connect();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(connection.getInputStream()));
+				Gson gson = new Gson();
+				credential = gson.fromJson(reader, Credential.class);
+				reader.close();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void unUsed) {
+			Intent intent = new Intent(getActivity(), ProfileActivity.class);
+			if (credential != null) {
+				intent.putExtra(ProfileActivity.USERID, credential.userId);
+			}
+			startActivity(intent);
+		}
+
 	}
 }

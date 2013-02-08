@@ -46,10 +46,18 @@
         </TableLayout>
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/user_home" />
+            android:text="@string/logout"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/homeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/user_home"
+            android:visibility="gone" />
 
     </LinearLayout>
 
