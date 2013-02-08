@@ -11,5 +11,6 @@
     <string name="doc_sharers">分享此文摘的用户</string>
     <string name="menu_share">分享</string>
     <string name="share_via">分享到</string>
+    <string name="open_in_browser">查看原站</string>
 
 </resources>

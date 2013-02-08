@@ -18,4 +18,8 @@ public class Doc {
 	public String url;
 	public int vote_count;
 	public List<User> sharers;
+	
+	public String get_absolute_url() {
+		return "http://wehuibao.com/api/doc" + this.docId;
+	}
 }

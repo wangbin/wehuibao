@@ -9,6 +9,7 @@ import java.net.URL;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,13 +41,12 @@ public class DocDetailFragment extends SherlockFragment {
 
 	private final static String DOC_URL = "http://wehuibao.com/api/doc/";
 	private Doc doc = null;
-	private MenuItem share;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		setRetainInstance(true);
-	    setHasOptionsMenu(true);
+		setHasOptionsMenu(true);
 		View view = inflater.inflate(R.layout.doc_detail, container, false);
 		docTitle = (TextView) view.findViewById(R.id.doc_title);
 		docContent = (WebView) view.findViewById(R.id.doc_content);
@@ -58,32 +58,37 @@ public class DocDetailFragment extends SherlockFragment {
 		}
 		return view;
 	}
-	
-	@Override
-	  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-	    inflater.inflate(R.menu.doc_detail, menu);
-	    share = menu.findItem(R.id.menu_share);
-	    super.onCreateOptionsMenu(menu, inflater);
-	  }
 
 	@Override
-	  public boolean onOptionsItemSelected(MenuItem item) {
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.doc_detail, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_share) {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(doc.major_title);
 			buffer.append(' ');
-			buffer.append(doc.absolute_url);
+			buffer.append(doc.get_absolute_url());
 			buffer.append(' ');
-			buffer.append(doc.abbrev_text.substring(0, 140 - doc.major_title.length()));
-			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+			buffer.append(doc.abbrev_text);
+			Intent sharingIntent = new Intent(Intent.ACTION_SEND);
 			sharingIntent.setType("text/plain");
-			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, doc.title);
-			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, buffer.toString());
+			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+					doc.title);
+			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, buffer
+					.toString().substring(0, 140));
 			this.startActivity(Intent.createChooser(sharingIntent, "∑÷œÌµΩ"));
-			
+		} else if (item.getItemId() == R.id.menu_browser) {
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+			browserIntent.setData(Uri.parse(doc.url));
+			this.startActivity(browserIntent);
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
 	class FetchDocTask extends AsyncTask<String, Void, Doc> {
 
 		@Override
@@ -123,8 +128,11 @@ public class DocDetailFragment extends SherlockFragment {
 					.loadData(doc.abbrev, "text/html; charset=utf-8", "UTF-8");
 			if (doc.sharers.size() > 0) {
 				for (User user : doc.sharers) {
-					TableRow row = (TableRow) DocDetailFragment.this.getActivity().getLayoutInflater().inflate(R.layout.sharer, null);
-					TextView name = (TextView) row.findViewById(R.id.sharer_name);
+					TableRow row = (TableRow) DocDetailFragment.this
+							.getActivity().getLayoutInflater()
+							.inflate(R.layout.sharer, null);
+					TextView name = (TextView) row
+							.findViewById(R.id.sharer_name);
 					name.setText(user.name);
 					row.setTag(user.userId);
 					row.setOnClickListener(new View.OnClickListener() {
