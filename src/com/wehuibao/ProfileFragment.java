@@ -161,9 +161,9 @@ public class ProfileFragment extends SherlockFragment {
 				if (!auth.isInstalled) {
 					if (authList.is_self) {
 						StringBuffer buffer = new StringBuffer();
-						authUrl = "http://wehuibao.com" + auth.auth_url;
+						authUrl = auth.service_id;
 						buffer.append("<a href=\"");
-						buffer.append(authUrl);
+						buffer.append(auth.auth_url);
 						buffer.append("\">µÇÂ¼</a>");
 						authStatus.setText(Html.fromHtml(buffer.toString()));
 					}
@@ -179,16 +179,21 @@ public class ProfileFragment extends SherlockFragment {
 				}
 				row.setTag(authUrl);
 				row.setOnClickListener(new View.OnClickListener() {
-					
+
 					@Override
 					public void onClick(View v) {
 						String authUrl = (String) v.getTag();
-						if (authUrl != "") {
-							Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+						if (!authUrl.startsWith("http://")) {
+							Intent authIntent = new Intent(getActivity(), AuthActivity.class);
+							authIntent.putExtra(AuthFragment.AUTH_SERVICE, authUrl);
+							startActivity(authIntent);
+						} else {
+							Intent browserIntent = new Intent(
+									Intent.ACTION_VIEW);
 							browserIntent.setData(Uri.parse(authUrl));
 							ProfileFragment.this.startActivity(browserIntent);
 						}
-						
+
 					}
 				});
 				authServices.addView(row, new TableLayout.LayoutParams(
