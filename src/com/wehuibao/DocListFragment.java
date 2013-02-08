@@ -72,6 +72,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 	  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	    inflater.inflate(R.menu.doc_list, menu);
 	    refresh = menu.findItem(R.id.menu_refresh);
+	    refresh.setActionView(R.layout.refresh);
 	    super.onCreateOptionsMenu(menu, inflater);
 	  }
 	
