@@ -11,4 +11,5 @@ public class Auth {
 	public String service_username;
 	public String user;
 	public String userid;
+	public String auth_url;
 }
