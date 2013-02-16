@@ -209,6 +209,9 @@ public class DocListFragment extends SherlockListFragment implements
 				DocList docList = gson.fromJson(reader, DocList.class);
 				reader.close();
 				for (Doc doc : docList.items) {
+					if (doc.title == null || doc.title.length() == 0) {
+						continue;
+					}
 					if (doc.thumb != null && doc.thumb.image_src != null) {
 						doc.thumb.image_path = downloadDocThumbnail(
 								doc.thumb.image_src, doc.docId);
@@ -246,10 +249,10 @@ public class DocListFragment extends SherlockListFragment implements
 				loadMore.setVisibility(View.VISIBLE);
 			}
 			if (!hasMore) {
-				footer.setVisibility(View.GONE);
+				DocListFragment.this.getListView().removeFooterView(footer);
 			} else {
-				if (footer.getVisibility() == View.GONE) {
-					footer.setVisibility(View.VISIBLE);
+				if (DocListFragment.this.getListView().getFooterViewsCount() == 0) {
+					DocListFragment.this.getListView().addFooterView(footer);
 				}
 			}
 		}
@@ -282,13 +285,13 @@ public class DocListFragment extends SherlockListFragment implements
 				FileOutputStream fos = new FileOutputStream(avatar.getPath());
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				byte[] buffer = new byte[1024];
+				int len = 0;
 				try {
-					while (in.read(buffer) > 0) {
-						bos.write(buffer);
+					while ((len = in.read(buffer)) > 0) {
+						bos.write(buffer, 0, len);
 					}
 					bos.flush();
 				} finally {
-					in.close();
 					fos.getFD().sync();
 					bos.close();
 				}
