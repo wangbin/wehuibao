@@ -20,6 +20,7 @@ public class Doc {
 	public List<User> sharers;
 	
 	public String get_absolute_url() {
-		return "http://wehuibao.com/api/doc" + this.docId;
+		//TODO: should use absolute_url, like http://wehuibao.com/docr/ISG71x 
+		return "http://wehuibao.com/doc/" + this.docId;
 	}
 }
