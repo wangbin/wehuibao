@@ -13,6 +13,8 @@ import java.net.URL;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -34,7 +36,8 @@ import com.google.gson.Gson;
 import com.wehuibao.json.Auth;
 import com.wehuibao.json.AuthList;
 
-public class ProfileFragment extends SherlockFragment implements OnClickListener {
+public class ProfileFragment extends SherlockFragment implements
+		OnClickListener {
 	private AuthList authList = null;
 	private TextView profileName;
 	private TextView profileDesc;
@@ -80,11 +83,11 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 				.inflate(R.layout.auth_service_table_row, null);
 		TextView authServiceName = (TextView) sinaRow
 				.findViewById(R.id.auth_service_name);
-		authServiceName.setText("ÐÂÀËÎ¢²©");
+		authServiceName.setText("ï¿½ï¿½ï¿½ï¿½Î¢ï¿½ï¿½");
 		TextView authStatus = (TextView) sinaRow.findViewById(R.id.auth_status);
 		authStatus
 				.setText(Html
-						.fromHtml("<a href=\"http://wehuibao.com/apilogin/sina2/\">µÇÂ¼</a>"));
+						.fromHtml("<a href=\"http://wehuibao.com/apilogin/sina2/\">ï¿½ï¿½Â¼</a>"));
 		sinaRow.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -103,11 +106,11 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 				.inflate(R.layout.auth_service_table_row, null);
 		authServiceName = (TextView) tencentRow
 				.findViewById(R.id.auth_service_name);
-		authServiceName.setText("ÌÚÑ¶Î¢²©");
+		authServiceName.setText("ï¿½ï¿½Ñ¶Î¢ï¿½ï¿½");
 		authStatus = (TextView) tencentRow.findViewById(R.id.auth_status);
 		authStatus
 				.setText(Html
-						.fromHtml("<a href=\"http://wehuibao.com/apilogin/qq/\">µÇÂ¼</a>"));
+						.fromHtml("<a href=\"http://wehuibao.com/apilogin/qq/\">ï¿½ï¿½Â¼</a>"));
 		tencentRow.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -126,11 +129,11 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 				.inflate(R.layout.auth_service_table_row, null);
 		authServiceName = (TextView) doubanRow
 				.findViewById(R.id.auth_service_name);
-		authServiceName.setText("¶¹°ê");
+		authServiceName.setText("ï¿½ï¿½ï¿½ï¿½");
 		authStatus = (TextView) doubanRow.findViewById(R.id.auth_status);
 		authStatus
 				.setText(Html
-						.fromHtml("<a href=\"http://wehuibao.com/apilogin/douban/\">µÇÂ¼</a>"));
+						.fromHtml("<a href=\"http://wehuibao.com/apilogin/douban/\">ï¿½ï¿½Â¼</a>"));
 		doubanRow.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -149,11 +152,11 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 				.inflate(R.layout.auth_service_table_row, null);
 		authServiceName = (TextView) fanfouRow
 				.findViewById(R.id.auth_service_name);
-		authServiceName.setText("·¹·ñ");
+		authServiceName.setText("ï¿½ï¿½ï¿½ï¿½");
 		authStatus = (TextView) fanfouRow.findViewById(R.id.auth_status);
 		authStatus
 				.setText(Html
-						.fromHtml("<a href=\"http://wehuibao.com/apilogin/fanfou/\">µÇÂ¼</a>"));
+						.fromHtml("<a href=\"http://wehuibao.com/apilogin/fanfou/\">ï¿½ï¿½Â¼</a>"));
 		fanfouRow.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -234,6 +237,7 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 				FileOutputStream fos = new FileOutputStream(avatar.getPath());
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				byte[] buffer = new byte[1024];
+
 				try {
 					while (in.read(buffer) > 0) {
 						bos.write(buffer);
@@ -254,25 +258,28 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 		@Override
 		protected void onPostExecute(AuthList authList) {
 			ProfileFragment.this.authList = authList;
-			homeButton.setText(authList.name + "µÄÖ÷Ò³");
+			homeButton.setText(authList.name + "ï¿½ï¿½ï¿½ï¿½Ò³");
 			homeButton.setVisibility(View.VISIBLE);
 			homeButton.setTag(authList.userId);
 			homeButton.setOnClickListener(new View.OnClickListener() {
-				
+
 				@Override
 				public void onClick(View v) {
 					String userId = (String) v.getTag();
-					Intent listIntent = new Intent(getActivity(), DocListActivity.class);
+					Intent listIntent = new Intent(getActivity(),
+							DocListActivity.class);
 					listIntent.putExtra(DocListActivity.LIST_TYPE, userId);
 					startActivity(listIntent);
-				}	
+				}
 			});
 			profileName.setText(authList.name);
 			if (profile_image_path != null) {
+				Bitmap bm = BitmapFactory.decodeFile(profile_image_path);
 				BitmapDrawable avatar = new BitmapDrawable(
-						ProfileFragment.this.getResources(), profile_image_path);
-				profileName.setCompoundDrawablesWithIntrinsicBounds(avatar,
-						null, null, null);
+						ProfileFragment.this.getResources(), bm);
+				avatar.setBounds(0, 0, avatar.getIntrinsicWidth(),
+						avatar.getIntrinsicHeight());
+				profileName.setCompoundDrawables(avatar, null, null, null);
 			}
 			if (authList.description != null) {
 				profileDesc.setText(authList.description);
@@ -296,7 +303,7 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 						authUrl = auth.service_id;
 						buffer.append("<a href=\"");
 						buffer.append(auth.auth_url);
-						buffer.append("\">µÇÂ¼</a>");
+						buffer.append("\">ï¿½ï¿½Â¼</a>");
 						authStatus.setText(Html.fromHtml(buffer.toString()));
 					}
 				} else {
@@ -340,9 +347,9 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 	public void onClick(View v) {
 		if (v.getId() == R.id.logout) {
 			new LogOutTask().execute();
-		}	
+		}
 	}
-	
+
 	class LogOutTask extends AsyncTask<Void, Void, Void> {
 
 		@Override
@@ -356,7 +363,7 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 						.openConnection();
 				connection.setReadTimeout(5000);
 				connection.setRequestMethod("GET");
-					connection.setRequestProperty("Cookie", cookie);
+				connection.setRequestProperty("Cookie", cookie);
 				connection.connect();
 				BufferedReader reader = new BufferedReader(
 						new InputStreamReader(connection.getInputStream()));
@@ -370,13 +377,15 @@ public class ProfileFragment extends SherlockFragment implements OnClickListener
 			}
 			return null;
 		}
-		
+
 		@Override
 		protected void onPostExecute(Void unUsed) {
 			SharedPreferences prefs = PreferenceManager
-					.getDefaultSharedPreferences(getActivity().getApplicationContext());
+					.getDefaultSharedPreferences(getActivity()
+							.getApplicationContext());
 			prefs.edit().remove("cookie").commit();
-			Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
+			Intent profileIntent = new Intent(getActivity(),
+					ProfileActivity.class);
 			profileIntent.putExtra(ProfileActivity.USERID, authList.userId);
 			startActivity(profileIntent);
 		}
