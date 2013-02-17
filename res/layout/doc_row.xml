@@ -9,14 +9,14 @@
             android:id="@+id/doc_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textIsSelectable="true"
+            android:textIsSelectable="false"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/doc_abbrev"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textIsSelectable="true" />
+            android:textIsSelectable="false" />
 
         <ImageView
             android:id="@+id/doc_thumb"
