@@ -23,7 +23,6 @@ import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.gson.Gson;
-import com.wehuibao.json.AuthList;
 import com.wehuibao.json.Credential;
 
 public class AuthFragment extends SherlockFragment {

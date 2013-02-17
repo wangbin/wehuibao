@@ -8,23 +8,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
-import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
@@ -80,7 +75,7 @@ public class DocDetailFragment extends SherlockFragment {
 					doc.title);
 			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, buffer
 					.toString().substring(0, 140));
-			this.startActivity(Intent.createChooser(sharingIntent, "∑÷œÌµΩ"));
+			this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
 		} else if (item.getItemId() == R.id.menu_browser) {
 			Intent browserIntent = new Intent(Intent.ACTION_VIEW);
 			browserIntent.setData(Uri.parse(doc.url));
