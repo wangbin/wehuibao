@@ -38,8 +38,7 @@ import com.google.gson.Gson;
 import com.wehuibao.json.Doc;
 import com.wehuibao.json.DocList;
 
-public class DocListFragment extends SherlockListFragment implements
-		OnClickListener {
+public class DocListFragment extends SherlockListFragment implements OnClickListener {
 
 	private static final String HOT_URL = "http://wehuibao.com/api/hot/";
 	private static final String DOC_LIST_URL = "http://wehuibao.com/api/doclist/";

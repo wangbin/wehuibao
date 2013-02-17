@@ -75,7 +75,8 @@ public class DocDetailFragment extends SherlockFragment {
 					doc.title);
 			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, buffer
 					.toString().substring(0, 140));
-			this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
+			this.startActivity(Intent.createChooser(sharingIntent,
+					getString(R.string.share_via)));
 		} else if (item.getItemId() == R.id.menu_browser) {
 			Intent browserIntent = new Intent(Intent.ACTION_VIEW);
 			browserIntent.setData(Uri.parse(doc.url));
@@ -115,7 +116,7 @@ public class DocDetailFragment extends SherlockFragment {
 			DocDetailFragment.this.doc = doc;
 			docTitle.setText(doc.title);
 			docContent.setVerticalFadingEdgeEnabled(false);
-			// docContent.getSettings().setDefaultTextEncodingName("UTF-8") ;
+			docContent.getSettings().setDefaultTextEncodingName("UTF-8");
 			docContent.getSettings().setLayoutAlgorithm(
 					LayoutAlgorithm.SINGLE_COLUMN);
 			docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
