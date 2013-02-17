@@ -61,21 +61,22 @@
                 android:drawableTop="@drawable/sina_logo" />
 
             <Button
-                android:id="@+id/fanfouButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/qqButton"
-                android:layout_alignParentBottom="true"
-                android:drawableTop="@drawable/fanfou_logo" />
-
-            <Button
                 android:id="@+id/doubanButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/sinaButton"
-                android:layout_marginTop="17dp"
-                android:layout_toLeftOf="@+id/qqButton"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="20dp"
+                android:layout_toRightOf="@+id/qqButton"
                 android:drawableTop="@drawable/douban_logo" />
+
+            <Button
+                android:id="@+id/fanfouButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="26dp"
+                android:layout_toRightOf="@+id/doubanButton"
+                android:drawableTop="@drawable/fanfou_logo" />
 
         </RelativeLayout>
                 <Button

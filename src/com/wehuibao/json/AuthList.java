@@ -12,4 +12,5 @@ public class AuthList {
 	public Boolean is_self;
 	public String name;
 	public String profile_image_url;
+	public String profile_image_path;
 }

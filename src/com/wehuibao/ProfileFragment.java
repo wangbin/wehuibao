@@ -1,11 +1,7 @@
 package com.wehuibao;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -21,20 +17,19 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.gson.Gson;
 import com.wehuibao.json.Auth;
 import com.wehuibao.json.AuthList;
+import com.wehuibao.util.net.ImageDownloader;
 
 public class ProfileFragment extends SherlockFragment implements
 		OnClickListener {
@@ -43,22 +38,34 @@ public class ProfileFragment extends SherlockFragment implements
 	private TextView profileDesc;
 	private Button homeButton;
 	private Button logoutButton;
-	private TableLayout authServices;
+	private Button sinaButton;
+	private Button qqButton;
+	private Button doubanButton;
+	private Button fanfouButton;
 	private String cookie;
 	private static final String LOGOUT_URL = "http://wehuibao.com/api/logout";
+	private static final String AUTH_URL = "http://weihuibao.com/apilogin/";
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		setRetainInstance(true);
+		// setRetainInstance(true);
 		setHasOptionsMenu(true);
 		View view = inflater.inflate(R.layout.profile, container, false);
 		Intent intent = this.getActivity().getIntent();
 		String userId = intent.getStringExtra(ProfileActivity.USERID);
 		profileName = (TextView) view.findViewById(R.id.profileName);
 		profileDesc = (TextView) view.findViewById(R.id.profileDescription);
-		authServices = (TableLayout) view.findViewById(R.id.auth_services);
 		homeButton = (Button) view.findViewById(R.id.homeButton);
+		homeButton.setOnClickListener(this);
+		sinaButton = (Button) view.findViewById(R.id.sinaButton);
+		sinaButton.setOnClickListener(this);
+		qqButton = (Button) view.findViewById(R.id.qqButton);
+		qqButton.setOnClickListener(this);
+		doubanButton = (Button) view.findViewById(R.id.doubanButton);
+		doubanButton.setOnClickListener(this);
+		fanfouButton = (Button) view.findViewById(R.id.fanfouButton);
+		fanfouButton.setOnClickListener(this);
 		logoutButton = (Button) view.findViewById(R.id.logout);
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity()
@@ -68,8 +75,9 @@ public class ProfileFragment extends SherlockFragment implements
 			String url = "http://wehuibao.com/api/user/" + userId;
 			new FetchUserTask().execute(url);
 		} else {
-			buildBindingTable();
+			setUpView();
 		}
+
 		if (cookie != null) {
 			logoutButton.setVisibility(View.VISIBLE);
 			logoutButton.setOnClickListener(this);
@@ -77,105 +85,83 @@ public class ProfileFragment extends SherlockFragment implements
 		return view;
 	}
 
-	private void buildBindingTable() {
-		TableRow sinaRow = (TableRow) ProfileFragment.this.getActivity()
-				.getLayoutInflater()
-				.inflate(R.layout.auth_service_table_row, null);
-		TextView authServiceName = (TextView) sinaRow
-				.findViewById(R.id.auth_service_name);
-		authServiceName.setText("����΢��");
-		TextView authStatus = (TextView) sinaRow.findViewById(R.id.auth_status);
-		authStatus
-				.setText(Html
-						.fromHtml("<a href=\"http://wehuibao.com/apilogin/sina2/\">��¼</a>"));
-		sinaRow.setOnClickListener(new View.OnClickListener() {
+	private Spanned buildAuthLink(String url, String desc) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<a href=\"");
+		buffer.append(url);
+		buffer.append("\">");
+		buffer.append(desc);
+		buffer.append("</a>");
+		return Html.fromHtml(buffer.toString());
+	}
 
-			@Override
-			public void onClick(View v) {
-				Intent authIntent = new Intent(getActivity(),
-						AuthActivity.class);
-				authIntent.putExtra(AuthFragment.AUTH_SERVICE, "sina2");
-				startActivity(authIntent);
+	private void setUpButtonText(Button button, Auth auth) {
+		button.setTag(auth);
+		if (auth.isInstalled) {
+			button.setText(buildAuthLink(auth.auth_url, auth.screen_name));
+		} else {
+			String unAuthorizedUser = getString(R.string.unauthorized_user);
+			button.setText(buildAuthLink(
+					AUTH_URL + AuthService.SINA.toString(), unAuthorizedUser));
+		}
+	}
 
+	private void setUpView() {
+		String unAuthorizedUser = getString(R.string.unauthorized_user);
+		if (authList == null) {
+			sinaButton.setText(buildAuthLink(
+					AUTH_URL + AuthService.SINA.toString(), unAuthorizedUser));
+			qqButton.setText(buildAuthLink(
+					AUTH_URL + AuthService.QQ.toString(), unAuthorizedUser));
+			doubanButton
+					.setText(buildAuthLink(
+							AUTH_URL + AuthService.DOUBAN.toString(),
+							unAuthorizedUser));
+			fanfouButton
+					.setText(buildAuthLink(
+							AUTH_URL + AuthService.FANFOU.toString(),
+							unAuthorizedUser));
+		} else {
+			homeButton.setText(authList.name + getString(R.string.user_home));
+			homeButton.setVisibility(View.VISIBLE);
+			homeButton.setTag(authList.userId);
+
+			profileName.setText(authList.name);
+			if (authList.profile_image_path != null) {
+				Bitmap bm = BitmapFactory
+						.decodeFile(authList.profile_image_path);
+				BitmapDrawable avatar = new BitmapDrawable(
+						ProfileFragment.this.getResources(), bm);
+				avatar.setBounds(0, 0, avatar.getIntrinsicWidth(),
+						avatar.getIntrinsicHeight());
+				profileName.setCompoundDrawables(avatar, null, null, null);
 			}
-		});
-		authServices.addView(sinaRow, new TableLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		TableRow tencentRow = (TableRow) ProfileFragment.this.getActivity()
-				.getLayoutInflater()
-				.inflate(R.layout.auth_service_table_row, null);
-		authServiceName = (TextView) tencentRow
-				.findViewById(R.id.auth_service_name);
-		authServiceName.setText("��Ѷ΢��");
-		authStatus = (TextView) tencentRow.findViewById(R.id.auth_status);
-		authStatus
-				.setText(Html
-						.fromHtml("<a href=\"http://wehuibao.com/apilogin/qq/\">��¼</a>"));
-		tencentRow.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Intent authIntent = new Intent(getActivity(),
-						AuthActivity.class);
-				authIntent.putExtra(AuthFragment.AUTH_SERVICE, "qq");
-				startActivity(authIntent);
-
+			if (authList.description != null) {
+				profileDesc.setText(authList.description);
+			} else {
+				profileDesc.setVisibility(View.GONE);
 			}
-		});
-		authServices.addView(tencentRow, new TableLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		TableRow doubanRow = (TableRow) ProfileFragment.this.getActivity()
-				.getLayoutInflater()
-				.inflate(R.layout.auth_service_table_row, null);
-		authServiceName = (TextView) doubanRow
-				.findViewById(R.id.auth_service_name);
-		authServiceName.setText("����");
-		authStatus = (TextView) doubanRow.findViewById(R.id.auth_status);
-		authStatus
-				.setText(Html
-						.fromHtml("<a href=\"http://wehuibao.com/apilogin/douban/\">��¼</a>"));
-		doubanRow.setOnClickListener(new View.OnClickListener() {
+			for (Auth auth : authList.auth_list) {
+				switch (AuthService.getAuthService(auth.service_id)) {
+				case SINA:
+					setUpButtonText(sinaButton, auth);
+					break;
+				case QQ:
+					setUpButtonText(qqButton, auth);
+					break;
 
-			@Override
-			public void onClick(View v) {
-				Intent authIntent = new Intent(getActivity(),
-						AuthActivity.class);
-				authIntent.putExtra(AuthFragment.AUTH_SERVICE, "douban");
-				startActivity(authIntent);
-
+				case DOUBAN:
+					setUpButtonText(doubanButton, auth);
+					break;
+				default:
+					setUpButtonText(fanfouButton, auth);
+					break;
+				}
 			}
-		});
-		authServices.addView(doubanRow, new TableLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		TableRow fanfouRow = (TableRow) ProfileFragment.this.getActivity()
-				.getLayoutInflater()
-				.inflate(R.layout.auth_service_table_row, null);
-		authServiceName = (TextView) fanfouRow
-				.findViewById(R.id.auth_service_name);
-		authServiceName.setText("����");
-		authStatus = (TextView) fanfouRow.findViewById(R.id.auth_status);
-		authStatus
-				.setText(Html
-						.fromHtml("<a href=\"http://wehuibao.com/apilogin/fanfou/\">��¼</a>"));
-		fanfouRow.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Intent authIntent = new Intent(getActivity(),
-						AuthActivity.class);
-				authIntent.putExtra(AuthFragment.AUTH_SERVICE, "fanfou");
-				startActivity(authIntent);
-
-			}
-		});
-		authServices.addView(fanfouRow, new TableLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-
+		}
 	}
 
 	class FetchUserTask extends AsyncTask<String, Void, AuthList> {
-
-		private String profile_image_path = null;
 
 		@Override
 		protected AuthList doInBackground(String... urls) {
@@ -195,8 +181,10 @@ public class ProfileFragment extends SherlockFragment implements
 				AuthList authList = gson.fromJson(reader, AuthList.class);
 				reader.close();
 				if (authList.profile_image_url != null) {
-					profile_image_path = downloadProfileImage(
-							authList.profile_image_url, authList.userId);
+					authList.profile_image_path = ImageDownloader
+							.downloadImage(getActivity(),
+									authList.profile_image_url, "/avatar/"
+											+ authList.userId);
 				}
 				return authList;
 			} catch (MalformedURLException e) {
@@ -209,144 +197,61 @@ public class ProfileFragment extends SherlockFragment implements
 			return null;
 		}
 
-		private String downloadProfileImage(String image_url, String user_id) {
-			String root = ProfileFragment.this.getActivity()
-					.getExternalFilesDir(null).toString();
-			File avatarDir = new File(root + "/avatar/" + user_id);
-			String image_name = image_url
-					.substring(image_url.lastIndexOf('/') + 1);
-			if (image_name.indexOf('?') != -1) {
-				image_name = image_name.substring(0,
-						image_name.lastIndexOf('?'));
-			}
-			File avatar = new File(avatarDir.toString() + '/' + image_name);
-			if (avatar.exists()) {
-				return avatar.getAbsolutePath();
-			}
-			if (!avatarDir.exists()) {
-				avatarDir.mkdirs();
-			}
-
-			try {
-				URL url = new URL(image_url);
-				HttpURLConnection connection = (HttpURLConnection) url
-						.openConnection();
-				connection.setReadTimeout(50000);
-				connection.connect();
-				InputStream in = connection.getInputStream();
-				FileOutputStream fos = new FileOutputStream(avatar.getPath());
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				byte[] buffer = new byte[1024];
-
-				try {
-					while (in.read(buffer) > 0) {
-						bos.write(buffer);
-					}
-					bos.flush();
-				} finally {
-					in.close();
-					fos.getFD().sync();
-					bos.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				return "";
-			}
-			return avatar.getAbsolutePath();
-		}
-
 		@Override
 		protected void onPostExecute(AuthList authList) {
 			ProfileFragment.this.authList = authList;
-			homeButton.setText(authList.name + "����ҳ");
-			homeButton.setVisibility(View.VISIBLE);
-			homeButton.setTag(authList.userId);
-			homeButton.setOnClickListener(new View.OnClickListener() {
 
-				@Override
-				public void onClick(View v) {
-					String userId = (String) v.getTag();
-					Intent listIntent = new Intent(getActivity(),
-							DocListActivity.class);
-					listIntent.putExtra(DocListActivity.LIST_TYPE, userId);
-					startActivity(listIntent);
-				}
-			});
-			profileName.setText(authList.name);
-			if (profile_image_path != null) {
-				Bitmap bm = BitmapFactory.decodeFile(profile_image_path);
-				BitmapDrawable avatar = new BitmapDrawable(
-						ProfileFragment.this.getResources(), bm);
-				avatar.setBounds(0, 0, avatar.getIntrinsicWidth(),
-						avatar.getIntrinsicHeight());
-				profileName.setCompoundDrawables(avatar, null, null, null);
-			}
-			if (authList.description != null) {
-				profileDesc.setText(authList.description);
-			} else {
-				profileDesc.setVisibility(View.GONE);
-			}
-
-			for (Auth auth : authList.auth_list) {
-				TableRow row = (TableRow) ProfileFragment.this.getActivity()
-						.getLayoutInflater()
-						.inflate(R.layout.auth_service_table_row, null);
-				TextView authServiceName = (TextView) row
-						.findViewById(R.id.auth_service_name);
-				authServiceName.setText(auth.name);
-				TextView authStatus = (TextView) row
-						.findViewById(R.id.auth_status);
-				String authUrl = "";
-				if (!auth.isInstalled) {
-					if (authList.is_self) {
-						StringBuffer buffer = new StringBuffer();
-						authUrl = auth.service_id;
-						buffer.append("<a href=\"");
-						buffer.append(auth.auth_url);
-						buffer.append("\">��¼</a>");
-						authStatus.setText(Html.fromHtml(buffer.toString()));
-					}
-				} else {
-					authUrl = auth.service_profile_url;
-					StringBuffer buffer = new StringBuffer();
-					buffer.append("<a href=\"");
-					buffer.append(authUrl);
-					buffer.append("\">");
-					buffer.append(auth.service_username);
-					buffer.append("</a>");
-					authStatus.setText(Html.fromHtml(buffer.toString()));
-				}
-				row.setTag(authUrl);
-				row.setOnClickListener(new View.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						String authUrl = (String) v.getTag();
-						if (!authUrl.startsWith("http://")) {
-							Intent authIntent = new Intent(getActivity(),
-									AuthActivity.class);
-							authIntent.putExtra(AuthFragment.AUTH_SERVICE,
-									authUrl);
-							startActivity(authIntent);
-						} else {
-							Intent browserIntent = new Intent(
-									Intent.ACTION_VIEW);
-							browserIntent.setData(Uri.parse(authUrl));
-							ProfileFragment.this.startActivity(browserIntent);
-						}
-
-					}
-				});
-				authServices.addView(row, new TableLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-			}
+			setUpView();
 		}
 	}
 
 	@Override
 	public void onClick(View v) {
-		if (v.getId() == R.id.logout) {
+		switch (v.getId()) {
+		case R.id.logout:
 			new LogOutTask().execute();
+			break;
+		case R.id.homeButton:
+			if (authList != null) {
+				Intent listIntent = new Intent(getActivity(),
+						DocListActivity.class);
+				listIntent.putExtra(DocListActivity.LIST_TYPE, authList.userId);
+				startActivity(listIntent);
+			}
+			break;
+		case R.id.sinaButton:
+			onAuthButtonClick(sinaButton, AuthService.SINA);
+			break;
+		case R.id.qqButton:
+			onAuthButtonClick(qqButton, AuthService.QQ);
+			break;
+		case R.id.doubanButton:
+			onAuthButtonClick(doubanButton, AuthService.DOUBAN);
+			break;
+		case R.id.fanfouButton:
+			onAuthButtonClick(fanfouButton, AuthService.FANFOU);
+			break;
+		}
+	}
+
+	private void onAuthButtonClick(Button button, AuthService authService) {
+		Auth auth = (Auth) button.getTag();
+		if (auth == null) {
+			Intent authIntent = new Intent(getActivity(), AuthActivity.class);
+			authIntent.putExtra(AuthFragment.AUTH_SERVICE,
+					authService.toString());
+			startActivity(authIntent);
+		} else if (!auth.isInstalled) {
+			if (authList.is_self) {
+				Intent authIntent = new Intent(getActivity(),
+						AuthActivity.class);
+				authIntent.putExtra(AuthFragment.AUTH_SERVICE,
+						authService.toString());
+			}
+		} else {
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+			browserIntent.setData(Uri.parse(auth.service_profile_url));
+			startActivity(browserIntent);
 		}
 	}
 
