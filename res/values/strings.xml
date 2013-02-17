@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Wehuibao</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">微汇报</string>
     <string name="menu_settings">功能设置</string>
     <string name="menu_profile">个人资料</string>
     <string name="menu_refresh">刷新</string>

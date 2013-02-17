@@ -125,6 +125,9 @@ public class ProfileFragment extends SherlockFragment implements
 			homeButton.setText(authList.name + getString(R.string.user_home));
 			homeButton.setVisibility(View.VISIBLE);
 			homeButton.setTag(authList.userId);
+			if (authList.is_self) {
+				logoutButton.setVisibility(View.VISIBLE);
+			}
 
 			profileName.setText(authList.name);
 			if (authList.profile_image_path != null) {

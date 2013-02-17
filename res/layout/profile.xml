@@ -2,6 +2,8 @@
     android:id="@+id/scrollView1"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:padding="8dp"
+    android:scrollbarStyle="insideInset"
     android:scrollbars="vertical" >
 
     <LinearLayout
@@ -13,6 +15,7 @@
             android:id="@+id/accountTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="@string/account"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -20,6 +23,7 @@
             android:id="@+id/profileName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:drawableLeft="@drawable/ic_contact_picture"
             android:gravity="center_vertical"
             android:text="@string/unauthorized_user"
@@ -29,60 +33,72 @@
             android:id="@+id/profileDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/rectangle"
+            android:padding="8dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/weibo_bindings_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
             android:text="@string/weibo_bindings"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="@drawable/rectangle"
+            android:orientation="vertical"
+            android:padding="@dimen/abs__action_bar_icon_vertical_padding"
+            android:paddingRight="@dimen/abs__action_bar_icon_vertical_padding" >
 
-            <Button
-                android:id="@+id/qqButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="20dp"
-                android:layout_toRightOf="@+id/sinaButton"
-                android:drawableTop="@drawable/qq_logo" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
 
-            <Button
-                android:id="@+id/sinaButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="60dp"
-                android:drawableTop="@drawable/sina_logo" />
-
-            <Button
-                android:id="@+id/fanfouButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/qqButton"
-                android:layout_alignParentBottom="true"
-                android:drawableTop="@drawable/fanfou_logo" />
-
-            <Button
-                android:id="@+id/doubanButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/sinaButton"
-                android:layout_marginTop="17dp"
-                android:layout_toLeftOf="@+id/qqButton"
-                android:drawableTop="@drawable/douban_logo" />
-
-        </RelativeLayout>
                 <Button
+                    android:id="@+id/sinaButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/sina_logo" />
+
+                <Button
+                    android:id="@+id/qqButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/qq_logo" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <Button
+                    android:id="@+id/doubanButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/douban_logo" />
+
+                <Button
+                    android:id="@+id/fanfouButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/fanfou_logo" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
             android:id="@+id/logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/logout"
+            android:layout_marginTop="8dp"
             android:visibility="gone" />
 
         <Button
@@ -90,6 +106,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/user_home"
+            android:layout_marginTop="8dp"
             android:visibility="gone" />
     </LinearLayout>
 

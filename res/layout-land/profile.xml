@@ -38,48 +38,42 @@
             android:text="@string/weibo_bindings"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <Button
-                android:id="@+id/qqButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="20dp"
-                android:layout_toRightOf="@+id/sinaButton"
-                android:drawableTop="@drawable/qq_logo" />
-
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
             <Button
                 android:id="@+id/sinaButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="60dp"
+                android:layout_weight="1"
                 android:drawableTop="@drawable/sina_logo" />
 
             <Button
-                android:id="@+id/doubanButton"
-                android:layout_width="wrap_content"
+                android:id="@+id/qqButton"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="20dp"
-                android:layout_toRightOf="@+id/qqButton"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/qq_logo" />
+
+            
+
+            <Button
+                android:id="@+id/doubanButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:drawableTop="@drawable/douban_logo" />
 
             <Button
                 android:id="@+id/fanfouButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="26dp"
-                android:layout_toRightOf="@+id/doubanButton"
+                android:layout_weight="1"
                 android:drawableTop="@drawable/fanfou_logo" />
+        </LinearLayout>
 
-        </RelativeLayout>
-                <Button
+        <Button
             android:id="@+id/logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
