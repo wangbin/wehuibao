@@ -47,11 +47,12 @@ public class DocListFragment extends SherlockListFragment implements
 	private Boolean hasMore = true;
 	private TextView loadMore;
 	private ProgressBar loadMorePB;
-	private MenuItem refresh;
+	private MenuItem refresh = null;
 	private View footer;
 	private String listUrl;
 	private String cookie;
 	private int menu_id;
+	private DocList docList;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -70,8 +71,9 @@ public class DocListFragment extends SherlockListFragment implements
 		if (docs == null) {
 			docs = new ArrayList<Doc>();
 			new DocFetchTask().execute(listUrl);
-			adapter = new DocAdapter();
 		}
+		adapter = new DocAdapter();
+		
 		footer = this.getActivity().getLayoutInflater()
 				.inflate(R.layout.load_more, null);
 		this.getListView().addFooterView(footer);
@@ -181,7 +183,7 @@ public class DocListFragment extends SherlockListFragment implements
 				BufferedReader reader = new BufferedReader(
 						new InputStreamReader(connection.getInputStream()));
 				Gson gson = new Gson();
-				DocList docList = gson.fromJson(reader, DocList.class);
+				docList = gson.fromJson(reader, DocList.class);
 				reader.close();
 				for (Doc doc : docList.items) {
 					if (doc.title == null || doc.title.length() == 0) {
@@ -218,7 +220,9 @@ public class DocListFragment extends SherlockListFragment implements
 
 		@Override
 		protected void onPostExecute(Void unused) {
+			if (refresh != null) {
 			refresh.setActionView(null);
+			}
 			if (loadMorePB.getVisibility() == View.VISIBLE) {
 				loadMorePB.setVisibility(View.GONE);
 				loadMore.setVisibility(View.VISIBLE);
@@ -293,5 +297,24 @@ public class DocListFragment extends SherlockListFragment implements
 		Intent intent = new Intent(this.getActivity(), DocDetailActivity.class);
 		intent.putExtra(DocDetailActivity.DOC_ID, doc.docId);
 		this.startActivity(intent);
+	}
+	
+	@Override
+	public void onPause() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+		Gson gson = new Gson();
+		prefs.edit().putString("docList", gson.toJson(docList)).commit();
+		super.onPause();
+	}
+	
+	@Override
+	public void onResume() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+		Gson gson = new Gson();
+		String docListStr = prefs.getString("docList", "");
+		if (!docListStr.isEmpty()) {
+			docs = gson.fromJson(docListStr, DocList.class).items;
+		}
+		super.onResume();
 	}
 }
