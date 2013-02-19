@@ -42,5 +42,4 @@ public class CredentialVerifyTask extends AsyncTask<String, Void, Credential> {
 		}
 		return null;
 	}
-
 }

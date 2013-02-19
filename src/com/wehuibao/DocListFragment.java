@@ -50,9 +50,8 @@ public class DocListFragment extends SherlockListFragment implements
 	private MenuItem refresh;
 	private View footer;
 	private String listUrl;
-	private ListType lt = null;
-	private String userId = null;
 	private String cookie;
+	private int menu_id;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -65,7 +64,8 @@ public class DocListFragment extends SherlockListFragment implements
 						.getApplicationContext());
 		cookie = prefs.getString("cookie", null);
 
-		listUrl = savedInstanceState.getString(DocListActivity.LIST_URL);
+		listUrl = getArguments().getString(DocListActivity.LIST_URL);
+		menu_id = getArguments().getInt(DocListActivity.MENU_ID);
 
 		if (docs == null) {
 			docs = new ArrayList<Doc>();
@@ -84,18 +84,7 @@ public class DocListFragment extends SherlockListFragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		switch (lt) {
-		case ME:
-			inflater.inflate(R.menu.me, menu);
-			break;
-		case OTHER:
-			inflater.inflate(R.menu.doc_list, menu);
-			break;
-		default:
-			inflater.inflate(R.menu.hot, menu);
-		}
-
-		// inflater.inflate(R.menu.doc_list, menu);
+		inflater.inflate(menu_id, menu);
 		refresh = menu.findItem(R.id.menu_refresh);
 		refresh.setActionView(R.layout.refresh);
 		super.onCreateOptionsMenu(menu, inflater);
@@ -131,7 +120,13 @@ public class DocListFragment extends SherlockListFragment implements
 		if (item.getItemId() == R.id.menu_profile) {
 			Intent profileIntent = new Intent(getActivity(),
 					ProfileActivity.class);
+			SharedPreferences prefs = PreferenceManager
+					.getDefaultSharedPreferences(getActivity()
+							.getApplicationContext());
+			String userId = prefs.getString("userId", "");
+			String userName = prefs.getString("userName", "");
 			profileIntent.putExtra(ProfileActivity.USERID, userId);
+			profileIntent.putExtra(ProfileActivity.USER_NAME, userName);
 			startActivity(profileIntent);
 		}
 		return super.onOptionsItemSelected(item);

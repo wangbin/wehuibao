@@ -62,7 +62,6 @@ public class AuthFragment extends SherlockFragment {
 
 		@Override
 		public void onPageStarted(WebView view, String url, Bitmap favicon) {
-			super.onPageStarted(view, url, favicon);
 			if (url.equals(AUTH_OK_URL)) {
 				cookieSyncMAnager.sync();
 				cookie = cookieManager.getCookie(BASE_URL);
@@ -70,7 +69,9 @@ public class AuthFragment extends SherlockFragment {
 						.getDefaultSharedPreferences(getActivity()
 								.getApplicationContext());
 				prefs.edit().putString("cookie", cookie).commit();
-				new VerifyCredentialsTask().execute();
+				new VerifyCredentialsTask().execute(cookie);
+			} else {
+				super.onPageStarted(view, url, favicon);
 			}
 		}
 	}
@@ -83,8 +84,13 @@ public class AuthFragment extends SherlockFragment {
 			if (credential != null) {
 				intent.putExtra(ProfileActivity.USERID, credential.userId);
 				intent.putExtra(ProfileActivity.USER_NAME, credential.name);
+				SharedPreferences prefs = PreferenceManager
+						.getDefaultSharedPreferences(getActivity()
+								.getApplicationContext());
+				prefs.edit().putString("userId", credential.userId)
+						.putString("userName", credential.name).commit();
+				startActivity(intent);
 			}
-			startActivity(intent);
 		}
 
 	}

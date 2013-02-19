@@ -26,7 +26,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.google.gson.Gson;
 import com.wehuibao.json.Auth;
 import com.wehuibao.json.AuthList;
 import com.wehuibao.util.net.ImageDownloader;
@@ -276,7 +275,6 @@ public class ProfileFragment extends SherlockFragment implements
 			prefs.edit().remove("cookie").commit();
 			Intent profileIntent = new Intent(getActivity(),
 					ProfileActivity.class);
-			profileIntent.putExtra(ProfileActivity.USERID, authList.userId);
 			startActivity(profileIntent);
 		}
 	}
