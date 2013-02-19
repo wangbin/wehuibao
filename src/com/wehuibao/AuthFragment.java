@@ -1,16 +1,8 @@
 package com.wehuibao;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -22,8 +14,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.google.gson.Gson;
 import com.wehuibao.json.Credential;
+import com.wehuibao.util.net.CredentialVerifyTask;
 
 public class AuthFragment extends SherlockFragment {
 	private WebView authWeb;
@@ -32,10 +24,8 @@ public class AuthFragment extends SherlockFragment {
 	public static final String AUTH_SERVICE = "AUTH_SERVICE";
 	private static final String AUTH_OK_URL = "http://wehuibao.com/apiauthok";
 	private static final String AUTH_URL = "http://wehuibao.com/apilogin/";
-	private static final String VERIFY_URL = "http://wehuibao.com/api/verify_credentials";
 	public static final String BASE_URL = "http://wehuibao.com";
 	private String cookie;
-	private Credential credential;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,49 +64,25 @@ public class AuthFragment extends SherlockFragment {
 		public void onPageStarted(WebView view, String url, Bitmap favicon) {
 			super.onPageStarted(view, url, favicon);
 			if (url.equals(AUTH_OK_URL)) {
+				cookieSyncMAnager.sync();
+				cookie = cookieManager.getCookie(BASE_URL);
+				SharedPreferences prefs = PreferenceManager
+						.getDefaultSharedPreferences(getActivity()
+								.getApplicationContext());
+				prefs.edit().putString("cookie", cookie).commit();
 				new VerifyCredentialsTask().execute();
 			}
 		}
 	}
 
-	class VerifyCredentialsTask extends AsyncTask<Void, Void, Void> {
+	class VerifyCredentialsTask extends CredentialVerifyTask {
 
 		@Override
-		protected Void doInBackground(Void... params) {
-			cookieSyncMAnager.sync();
-			cookie = cookieManager.getCookie(BASE_URL);
-			SharedPreferences prefs = PreferenceManager
-					.getDefaultSharedPreferences(getActivity()
-							.getApplicationContext());
-			prefs.edit().putString("cookie", cookie).commit();
-			try {
-				URL url = new URL(VERIFY_URL);
-				HttpURLConnection connection = (HttpURLConnection) url
-						.openConnection();
-				connection.setReadTimeout(5000);
-				connection.setRequestMethod("GET");
-				connection.setRequestProperty("Cookie", cookie);
-				connection.connect();
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(connection.getInputStream()));
-				Gson gson = new Gson();
-				credential = gson.fromJson(reader, Credential.class);
-				reader.close();
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void unUsed) {
+		protected void onPostExecute(Credential credential) {
 			Intent intent = new Intent(getActivity(), ProfileActivity.class);
 			if (credential != null) {
 				intent.putExtra(ProfileActivity.USERID, credential.userId);
+				intent.putExtra(ProfileActivity.USER_NAME, credential.name);
 			}
 			startActivity(intent);
 		}

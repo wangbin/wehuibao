@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 import com.wehuibao.json.Auth;
 import com.wehuibao.json.AuthList;
 import com.wehuibao.util.net.ImageDownloader;
+import com.wehuibao.util.net.UserFetchTask;
 
 public class ProfileFragment extends SherlockFragment implements
 		OnClickListener {
@@ -164,40 +165,21 @@ public class ProfileFragment extends SherlockFragment implements
 		}
 	}
 
-	class FetchUserTask extends AsyncTask<String, Void, AuthList> {
+	class FetchUserTask extends UserFetchTask {
+		@Override
+		public void updateConnection(HttpURLConnection connection) {
+			if (cookie != null) {
+				connection.setRequestProperty("Cookie", cookie);
+			}
+		}
 
 		@Override
-		protected AuthList doInBackground(String... urls) {
-			try {
-				URL url = new URL(urls[0]);
-				HttpURLConnection connection = (HttpURLConnection) url
-						.openConnection();
-				connection.setReadTimeout(5000);
-				connection.setRequestMethod("GET");
-				if (cookie != null) {
-					connection.setRequestProperty("Cookie", cookie);
-				}
-				connection.connect();
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(connection.getInputStream()));
-				Gson gson = new Gson();
-				AuthList authList = gson.fromJson(reader, AuthList.class);
-				reader.close();
-				if (authList.profile_image_url != null) {
-					authList.profile_image_path = ImageDownloader
-							.downloadImage(getActivity(),
-									authList.profile_image_url, "/avatar/"
-											+ authList.userId);
-				}
-				return authList;
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		public void updateAuthList(AuthList authList) {
+			if (authList.profile_image_url != null) {
+				authList.profile_image_path = ImageDownloader.downloadImage(
+						getActivity(), authList.profile_image_url, "/avatar/"
+								+ authList.userId);
 			}
-			return null;
 		}
 
 		@Override

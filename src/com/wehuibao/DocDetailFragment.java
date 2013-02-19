@@ -130,17 +130,18 @@ public class DocDetailFragment extends SherlockFragment {
 					TextView name = (TextView) row
 							.findViewById(R.id.sharer_name);
 					name.setText(user.name);
-					row.setTag(user.userId);
+					row.setTag(user);
 					row.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							// TODO Auto-generated method stub
-							String userId = (String) v.getTag();
+							User user = (User) v.getTag();
 							Intent profileIntent = new Intent(
 									DocDetailFragment.this.getActivity(),
 									ProfileActivity.class);
 							profileIntent.putExtra(ProfileActivity.USERID,
-									userId);
+									user.userId);
+							profileIntent.putExtra(ProfileActivity.USER_NAME, user.name);
 							DocDetailFragment.this.startActivity(profileIntent);
 						}
 					});
