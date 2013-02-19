@@ -121,12 +121,16 @@ public class ProfileFragment extends SherlockFragment implements
 					.setText(buildAuthLink(
 							AUTH_URL + AuthService.FANFOU.toString(),
 							unAuthorizedUser));
+			profileDesc.setVisibility(View.GONE);
+			
 		} else {
 			homeButton.setText(authList.name + getString(R.string.user_home));
 			homeButton.setVisibility(View.VISIBLE);
 			homeButton.setTag(authList.userId);
 			if (authList.is_self) {
 				logoutButton.setVisibility(View.VISIBLE);
+			} else {
+				logoutButton.setVisibility(View.GONE);
 			}
 
 			profileName.setText(authList.name);
@@ -139,7 +143,7 @@ public class ProfileFragment extends SherlockFragment implements
 						avatar.getIntrinsicHeight());
 				profileName.setCompoundDrawables(avatar, null, null, null);
 			}
-			if (authList.description != null) {
+			if (authList.description != null && authList.description.length() > 0) {
 				profileDesc.setText(authList.description);
 			} else {
 				profileDesc.setVisibility(View.GONE);

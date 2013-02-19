@@ -25,7 +25,6 @@ public class AuthFragment extends SherlockFragment {
 	private static final String AUTH_OK_URL = "http://wehuibao.com/apiauthok";
 	private static final String AUTH_URL = "http://wehuibao.com/apilogin/";
 	public static final String BASE_URL = "http://wehuibao.com";
-	private String cookie;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,7 +63,7 @@ public class AuthFragment extends SherlockFragment {
 		public void onPageStarted(WebView view, String url, Bitmap favicon) {
 			if (url.equals(AUTH_OK_URL)) {
 				cookieSyncMAnager.sync();
-				cookie = cookieManager.getCookie(BASE_URL);
+				String cookie = cookieManager.getCookie(BASE_URL);
 				SharedPreferences prefs = PreferenceManager
 						.getDefaultSharedPreferences(getActivity()
 								.getApplicationContext());
