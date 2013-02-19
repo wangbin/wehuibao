@@ -38,10 +38,9 @@ import com.google.gson.Gson;
 import com.wehuibao.json.Doc;
 import com.wehuibao.json.DocList;
 
-public class DocListFragment extends SherlockListFragment implements OnClickListener {
+public class DocListFragment extends SherlockListFragment implements
+		OnClickListener {
 
-	private static final String HOT_URL = "http://wehuibao.com/api/hot/";
-	private static final String DOC_LIST_URL = "http://wehuibao.com/api/doclist/";
 	private List<Doc> docs = null;
 	private DocAdapter adapter;
 	private int start = 0;
@@ -66,30 +65,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 						.getApplicationContext());
 		cookie = prefs.getString("cookie", null);
 
-		Intent intent = this.getActivity().getIntent();
-		String listType = intent.getStringExtra(DocListActivity.LIST_TYPE);
-		if (listType != null) {
-			lt = ListType.getListType(listType);
-		} else {
-			if (cookie != null) {
-				lt = ListType.ME;
-			} else {
-				lt = ListType.HOT;
-			}
-		}
-		
-		switch (lt) {
-		case ME:
-			userId = "@me";
-			listUrl = DOC_LIST_URL + userId;
-			break;
-		case OTHER:
-			userId = listType;
-			listUrl = DOC_LIST_URL + userId;
-			break;
-		default:
-			listUrl = HOT_URL;
-		}
+		listUrl = savedInstanceState.getString(DocListActivity.LIST_URL);
 
 		if (docs == null) {
 			docs = new ArrayList<Doc>();
@@ -119,7 +95,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 			inflater.inflate(R.menu.hot, menu);
 		}
 
-		//inflater.inflate(R.menu.doc_list, menu);
+		// inflater.inflate(R.menu.doc_list, menu);
 		refresh = menu.findItem(R.id.menu_refresh);
 		refresh.setActionView(R.layout.refresh);
 		super.onCreateOptionsMenu(menu, inflater);
@@ -131,25 +107,30 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 			adapter.clear();
 			start = 0;
 			refresh.setActionView(R.layout.refresh);
-			new DocFetchTask().execute(HOT_URL);
+			new DocFetchTask().execute(DocListActivity.HOT_URL);
 		}
 		if (item.getItemId() == R.id.menu_home) {
 			if (cookie != null) {
-				Intent homeIntent = new Intent(getActivity(), DocListActivity.class);
-				homeIntent.putExtra(DocListActivity.LIST_TYPE, ListType.ME.toString());
+				Intent homeIntent = new Intent(getActivity(),
+						DocListActivity.class);
+				homeIntent.putExtra(DocListActivity.LIST_TYPE,
+						ListType.ME.toString());
 				startActivity(homeIntent);
 			} else {
-				Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
+				Intent profileIntent = new Intent(getActivity(),
+						ProfileActivity.class);
 				startActivity(profileIntent);
 			}
 		}
 		if (item.getItemId() == R.id.menu_hot) {
 			Intent hotIntent = new Intent(getActivity(), DocListActivity.class);
-			hotIntent.putExtra(DocListActivity.LIST_TYPE, ListType.HOT.toString());
+			hotIntent.putExtra(DocListActivity.LIST_TYPE,
+					ListType.HOT.toString());
 			startActivity(hotIntent);
 		}
 		if (item.getItemId() == R.id.menu_profile) {
-			Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
+			Intent profileIntent = new Intent(getActivity(),
+					ProfileActivity.class);
 			profileIntent.putExtra(ProfileActivity.USERID, userId);
 			startActivity(profileIntent);
 		}
@@ -307,7 +288,7 @@ public class DocListFragment extends SherlockListFragment implements OnClickList
 		if (v.getId() == R.id.load_more) {
 			v.setVisibility(View.GONE);
 			loadMorePB.setVisibility(View.VISIBLE);
-			new DocFetchTask().execute(HOT_URL);
+			new DocFetchTask().execute(DocListActivity.HOT_URL);
 		}
 	}
 

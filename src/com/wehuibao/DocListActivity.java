@@ -7,13 +7,15 @@ import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.wehuibao.json.AuthList;
-import com.wehuibao.json.Credential;
-import com.wehuibao.util.net.CredentialVerifyTask;
 import com.wehuibao.util.net.UserFetchTask;
 
 public class DocListActivity extends SherlockFragmentActivity {
 	public static final String LIST_TYPE = "LIST_TYPE";
+	public static final String LIST_URL = "LIST_URL";
+	private static final String ME = "@me";
 	private static final String USER_URL = "http://wehuibao.com/api/user/";
+	static final String HOT_URL = "http://wehuibao.com/api/hot/";
+	private static final String DOC_LIST_URL = "http://wehuibao.com/api/doclist/";
 	private ListType lt;
 	private String userId;
 
@@ -38,13 +40,16 @@ public class DocListActivity extends SherlockFragmentActivity {
 		switch (lt) {
 		case ME:
 			userId = "@me";
+			savedInstanceState.putString(LIST_URL, DOC_LIST_URL + ME);
 			getSupportActionBar().setTitle(getString(R.string.menu_home));
 			break;
 		case OTHER:
 			userId = listType;
+			savedInstanceState.putString(LIST_URL, DOC_LIST_URL + userId);
 			new FetchUserTask().execute(USER_URL + userId);
 			break;
 		default:
+			savedInstanceState.putString(LIST_URL, HOT_URL);
 			this.getSupportActionBar().setTitle(R.string.menu_hot);
 		}
 
