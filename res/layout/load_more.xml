@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:minHeight="40dp"
+        android:minWidth="40dp"
         android:visibility="invisible" />
 
 </RelativeLayout>

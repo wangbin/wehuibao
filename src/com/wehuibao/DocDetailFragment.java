@@ -119,7 +119,7 @@ public class DocDetailFragment extends SherlockFragment {
 			docContent.getSettings().setDefaultTextEncodingName("UTF-8");
 			docContent.getSettings().setLayoutAlgorithm(
 					LayoutAlgorithm.SINGLE_COLUMN);
-			docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+			//docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 			docContent
 					.loadData(doc.abbrev, "text/html; charset=utf-8", "UTF-8");
 			if (doc.sharers.size() > 0) {

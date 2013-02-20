@@ -3,16 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:scrollbarStyle="insideInset"
-    android:background="#FFF"
-    android:paddingLeft="8dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
+    android:background="#ededed"
+    android:paddingLeft="10dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
     android:scrollbars="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="4dp"
         android:orientation="vertical" >
 
         <TextView
@@ -26,15 +25,20 @@
             android:id="@+id/doc_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none" />
+            android:scrollbars="none"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_marginBottom="8dp" />
 
         <TextView
             android:id="@+id/doc_sharers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:drawablePadding="8dp"
+            android:drawableTop="@drawable/list_divisor"
             android:text="@string/doc_sharers"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_marginBottom="8dp" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TableLayout
             android:id="@+id/sharerTable"

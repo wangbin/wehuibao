@@ -122,12 +122,13 @@ public class ProfileFragment extends SherlockFragment implements
 							AUTH_URL + AuthService.FANFOU.toString(),
 							unAuthorizedUser));
 			profileDesc.setVisibility(View.GONE);
-			
+
 		} else {
 			if (authList.is_self) {
 				homeButton.setText(getString(R.string.menu_home));
 			} else {
-			homeButton.setText(authList.name + getString(R.string.user_home));
+				homeButton.setText(authList.name
+						+ getString(R.string.user_home));
 			}
 			homeButton.setVisibility(View.VISIBLE);
 			homeButton.setTag(authList.userId);
@@ -147,7 +148,9 @@ public class ProfileFragment extends SherlockFragment implements
 						avatar.getIntrinsicHeight());
 				profileName.setCompoundDrawables(avatar, null, null, null);
 			}
-			if (authList.description != null && authList.description.length() > 0) {
+			if (authList.description != null
+					&& authList.description.length() > 0
+					&& !authList.description.equalsIgnoreCase("none")) {
 				profileDesc.setText(authList.description);
 			} else {
 				profileDesc.setVisibility(View.GONE);
@@ -208,9 +211,11 @@ public class ProfileFragment extends SherlockFragment implements
 				Intent listIntent = new Intent(getActivity(),
 						DocListActivity.class);
 				if (authList.is_self) {
-					listIntent.putExtra(DocListActivity.LIST_TYPE, ListType.ME.toString());
+					listIntent.putExtra(DocListActivity.LIST_TYPE,
+							ListType.ME.toString());
 				} else {
-					listIntent.putExtra(DocListActivity.LIST_TYPE, authList.userId);
+					listIntent.putExtra(DocListActivity.LIST_TYPE,
+							authList.userId);
 				}
 				startActivity(listIntent);
 			}
