@@ -51,7 +51,7 @@ public class DocListFragment extends SherlockListFragment implements
 	private View footer;
 	private String listUrl;
 	private String cookie;
-	private int menu_id;
+	private int menu_id = R.menu.hot;
 	private DocList docList;
 
 	@Override
@@ -73,7 +73,7 @@ public class DocListFragment extends SherlockListFragment implements
 			new DocFetchTask().execute(listUrl);
 		}
 		adapter = new DocAdapter();
-		
+
 		footer = this.getActivity().getLayoutInflater()
 				.inflate(R.layout.load_more, null);
 		this.getListView().addFooterView(footer);
@@ -221,7 +221,7 @@ public class DocListFragment extends SherlockListFragment implements
 		@Override
 		protected void onPostExecute(Void unused) {
 			if (refresh != null) {
-			refresh.setActionView(null);
+				refresh.setActionView(null);
 			}
 			if (loadMorePB.getVisibility() == View.VISIBLE) {
 				loadMorePB.setVisibility(View.GONE);
@@ -297,24 +297,5 @@ public class DocListFragment extends SherlockListFragment implements
 		Intent intent = new Intent(this.getActivity(), DocDetailActivity.class);
 		intent.putExtra(DocDetailActivity.DOC_ID, doc.docId);
 		this.startActivity(intent);
-	}
-	
-	@Override
-	public void onPause() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-		Gson gson = new Gson();
-		prefs.edit().putString("docList", gson.toJson(docList)).commit();
-		super.onPause();
-	}
-	
-	@Override
-	public void onResume() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-		Gson gson = new Gson();
-		String docListStr = prefs.getString("docList", "");
-		if (!docListStr.isEmpty()) {
-			docs = gson.fromJson(docListStr, DocList.class).items;
-		}
-		super.onResume();
 	}
 }
