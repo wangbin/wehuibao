@@ -12,6 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginRight="4dp"
         android:orientation="vertical" >
 
         <TextView
@@ -32,12 +33,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/doc_sharers"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_marginBottom="8dp" />
 
         <TableLayout
             android:id="@+id/sharerTable"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="@drawable/rectangle"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" >
 
         </TableLayout>
 

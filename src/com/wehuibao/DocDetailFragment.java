@@ -123,10 +123,21 @@ public class DocDetailFragment extends SherlockFragment {
 			docContent
 					.loadData(doc.abbrev, "text/html; charset=utf-8", "UTF-8");
 			if (doc.sharers.size() > 0) {
+				int number = 0;
+				int total = doc.sharers.size();
 				for (User user : doc.sharers) {
-					TableRow row = (TableRow) DocDetailFragment.this
-							.getActivity().getLayoutInflater()
-							.inflate(R.layout.sharer, null);
+					number++;
+					TableRow row;
+					if (number < total) {
+						row = (TableRow) DocDetailFragment.this.getActivity()
+								.getLayoutInflater()
+								.inflate(R.layout.sharer, null);
+					} else {
+						row = (TableRow) DocDetailFragment.this.getActivity()
+								.getLayoutInflater()
+								.inflate(R.layout.sharer_last, null);
+					}
+
 					TextView name = (TextView) row
 							.findViewById(R.id.sharer_name);
 					name.setText(user.name);
@@ -141,10 +152,12 @@ public class DocDetailFragment extends SherlockFragment {
 									ProfileActivity.class);
 							profileIntent.putExtra(ProfileActivity.USERID,
 									user.userId);
-							profileIntent.putExtra(ProfileActivity.USER_NAME, user.name);
+							profileIntent.putExtra(ProfileActivity.USER_NAME,
+									user.name);
 							DocDetailFragment.this.startActivity(profileIntent);
 						}
 					});
+
 					sharerTable.addView(row, new TableLayout.LayoutParams(
 							LayoutParams.MATCH_PARENT,
 							LayoutParams.WRAP_CONTENT));
