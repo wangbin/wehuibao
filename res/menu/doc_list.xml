@@ -8,12 +8,13 @@
     </item>
     <item
         android:id="@+id/menu_hot"
-        android:showAsAction="ifRoom"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/menu_hot">
     </item>
     <item
         android:id="@+id/menu_home"
         android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_menu_home"
         android:title="@string/menu_home">
     </item>
     <item

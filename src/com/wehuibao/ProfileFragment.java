@@ -124,7 +124,11 @@ public class ProfileFragment extends SherlockFragment implements
 			profileDesc.setVisibility(View.GONE);
 			
 		} else {
+			if (authList.is_self) {
+				homeButton.setText(getString(R.string.menu_home));
+			} else {
 			homeButton.setText(authList.name + getString(R.string.user_home));
+			}
 			homeButton.setVisibility(View.VISIBLE);
 			homeButton.setTag(authList.userId);
 			if (authList.is_self) {
@@ -203,7 +207,11 @@ public class ProfileFragment extends SherlockFragment implements
 			if (authList != null) {
 				Intent listIntent = new Intent(getActivity(),
 						DocListActivity.class);
-				listIntent.putExtra(DocListActivity.LIST_TYPE, authList.userId);
+				if (authList.is_self) {
+					listIntent.putExtra(DocListActivity.LIST_TYPE, ListType.ME.toString());
+				} else {
+					listIntent.putExtra(DocListActivity.LIST_TYPE, authList.userId);
+				}
 				startActivity(listIntent);
 			}
 			break;

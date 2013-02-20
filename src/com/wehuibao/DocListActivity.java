@@ -12,7 +12,6 @@ import com.wehuibao.util.net.UserFetchTask;
 public class DocListActivity extends SherlockFragmentActivity {
 	public static final String LIST_TYPE = "LIST_TYPE";
 	public static final String LIST_URL = "LIST_URL";
-	public static final String MENU_ID = "MENU_ID";
 	private static final String ME = "@me";
 	private static final String USER_URL = "http://wehuibao.com/api/user/";
 	static final String HOT_URL = "http://wehuibao.com/api/hot/";
@@ -39,24 +38,20 @@ public class DocListActivity extends SherlockFragmentActivity {
 				lt = ListType.HOT;
 			}
 		}
-
+		fragmentArgs.putString(LIST_TYPE, lt.toString());
 		switch (lt) {
 		case ME:
 			userId = "@me";
 			fragmentArgs.putString(LIST_URL, DOC_LIST_URL + ME);
-			fragmentArgs.putInt(MENU_ID, R.menu.me);
-			
 			getSupportActionBar().setTitle(getString(R.string.menu_home));
 			break;
 		case OTHER:
 			userId = listType;
 			fragmentArgs.putString(LIST_URL, DOC_LIST_URL + userId);
-			fragmentArgs.putInt(MENU_ID, R.menu.doc_list);
 			new FetchUserTask().execute(USER_URL + userId);
 			break;
 		default:
 			fragmentArgs.putString(LIST_URL, HOT_URL);
-			fragmentArgs.putInt(MENU_ID, R.menu.hot);
 			this.getSupportActionBar().setTitle(R.string.menu_hot);
 		}
 		

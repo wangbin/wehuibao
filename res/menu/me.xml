@@ -8,7 +8,7 @@
     </item>
     <item
         android:id="@+id/menu_hot"
-        android:showAsAction="ifRoom"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/menu_hot">
     </item>
     <item

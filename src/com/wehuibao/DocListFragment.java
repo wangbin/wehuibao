@@ -51,7 +51,6 @@ public class DocListFragment extends SherlockListFragment implements
 	private View footer;
 	private String listUrl;
 	private String cookie;
-	private int menu_id = R.menu.hot;
 	private DocList docList;
 
 	@Override
@@ -66,7 +65,6 @@ public class DocListFragment extends SherlockListFragment implements
 		cookie = prefs.getString("cookie", null);
 
 		listUrl = getArguments().getString(DocListActivity.LIST_URL);
-		menu_id = getArguments().getInt(DocListActivity.MENU_ID);
 
 		if (docs == null) {
 			docs = new ArrayList<Doc>();
@@ -86,7 +84,19 @@ public class DocListFragment extends SherlockListFragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(menu_id, menu);
+		String listType = getArguments().getString(DocListActivity.LIST_TYPE);
+		ListType lt = ListType.getListType(listType);
+		switch (lt) {
+		case ME:
+			inflater.inflate(R.menu.me, menu);
+			break;
+		case HOT:
+			inflater.inflate(R.menu.hot, menu);
+			break;
+		default:
+			inflater.inflate(R.menu.doc_list, menu);
+		}
+
 		refresh = menu.findItem(R.id.menu_refresh);
 		refresh.setActionView(R.layout.refresh);
 		super.onCreateOptionsMenu(menu, inflater);
