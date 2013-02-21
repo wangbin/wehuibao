@@ -22,5 +22,6 @@
     <string name="menu_home">个人主页</string>
     <string name="menu_hot">热点</string>
     <string name="logout">退出登录</string>
+    <string name="number_of_new_docs">条新消息</string>
 
 </resources>

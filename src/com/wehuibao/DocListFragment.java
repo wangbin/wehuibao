@@ -20,7 +20,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -29,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -84,10 +84,10 @@ public class DocListFragment extends SherlockListFragment implements
 		loadMore.setOnClickListener(this);
 		this.setListAdapter(adapter);
 	}
-	
+
 	private ListType getListType() {
-			String listType = getArguments().getString(DocListActivity.LIST_TYPE);
-			return ListType.getListType(listType);
+		String listType = getArguments().getString(DocListActivity.LIST_TYPE);
+		return ListType.getListType(listType);
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class DocListFragment extends SherlockListFragment implements
 						urlStr += "?max_id=" + maxId;
 					}
 				}
-				
+
 				URL url = new URL(urlStr);
 				HttpURLConnection connection = (HttpURLConnection) url
 						.openConnection();
@@ -218,14 +218,10 @@ public class DocListFragment extends SherlockListFragment implements
 				Gson gson = new Gson();
 				docList = gson.fromJson(reader, DocList.class);
 				reader.close();
-				for (Doc dd : DocListFragment.this.docs) {
-					Log.d("DocListFragment current docs: ", dd.title);
-				}
 				for (Doc doc : docList.items) {
 					if (doc.title == null || doc.title.length() == 0) {
 						continue;
 					}
-					Log.d("DocListFragment Fetched Docs: ", doc.title);
 					if (doc.thumb != null && doc.thumb.image_src != null) {
 						doc.thumb.image_path = downloadDocThumbnail(
 								doc.thumb.image_src, doc.docId);
@@ -234,7 +230,6 @@ public class DocListFragment extends SherlockListFragment implements
 					this.publishProgress(doc);
 				}
 				hasMore = docList.has_more;
-				Log.d("Has more: ", String.valueOf(hasMore));
 				if (docList.has_more) {
 					start += 20;
 				}
@@ -273,15 +268,18 @@ public class DocListFragment extends SherlockListFragment implements
 					DocListFragment.this.getListView().addFooterView(footer);
 				}
 			}
-			Log.d("DocListFragment: ", String.valueOf(numberFetched));
-			
+
 			if (numberFetched > 0) {
 				if (isRefresh) {
 					adapter.clear();
 				}
 				adapter.addAll(docs);
 				adapter.notifyDataSetChanged();
-				//numberFetched = 0;
+				Toast.makeText(
+						getActivity(),
+						String.valueOf(numberFetched)
+								+ getString(R.string.number_of_new_docs),
+						Toast.LENGTH_SHORT).show();
 			}
 			if (isRefresh) {
 				isRefresh = false;
