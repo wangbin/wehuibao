@@ -104,6 +104,7 @@ public class ProfileFragment extends SherlockFragment implements
 			button.setText(buildAuthLink(
 					AUTH_URL + AuthService.SINA.toString(), unAuthorizedUser));
 		}
+		button.setClickable(authList.is_self || auth.isInstalled);
 	}
 
 	private void setUpView() {
@@ -237,7 +238,7 @@ public class ProfileFragment extends SherlockFragment implements
 
 	private void onAuthButtonClick(Button button, AuthService authService) {
 		Auth auth = (Auth) button.getTag();
-		if (auth == null || !auth.isInstalled) {
+		if (auth == null) {
 			Intent authIntent = new Intent(getActivity(), AuthActivity.class);
 			authIntent.putExtra(AuthFragment.AUTH_SERVICE,
 					authService.toString());
@@ -248,6 +249,7 @@ public class ProfileFragment extends SherlockFragment implements
 						AuthActivity.class);
 				authIntent.putExtra(AuthFragment.AUTH_SERVICE,
 						authService.toString());
+				startActivity(authIntent);
 			}
 		} else {
 			Intent browserIntent = new Intent(Intent.ACTION_VIEW);
