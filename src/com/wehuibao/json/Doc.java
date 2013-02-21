@@ -23,4 +23,10 @@ public class Doc {
 		//TODO: should use absolute_url, like http://wehuibao.com/docr/ISG71x 
 		return "http://wehuibao.com/doc/" + this.docId;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		Doc doc = (Doc) obj;
+		return this.docId.equals(doc.docId);
+	}
 }

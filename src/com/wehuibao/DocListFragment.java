@@ -52,6 +52,9 @@ public class DocListFragment extends SherlockListFragment implements
 	private String listUrl;
 	private String cookie;
 	private DocList docList;
+	private boolean isRefresh = false;
+	private String maxId = null;
+	private ListType lt = null;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -81,11 +84,17 @@ public class DocListFragment extends SherlockListFragment implements
 		loadMore.setOnClickListener(this);
 		this.setListAdapter(adapter);
 	}
+	
+	private ListType getListType() {
+			String listType = getArguments().getString(DocListActivity.LIST_TYPE);
+			return ListType.getListType(listType);
+	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		String listType = getArguments().getString(DocListActivity.LIST_TYPE);
-		ListType lt = ListType.getListType(listType);
+		if (lt == null) {
+			lt = getListType();
+		}
 		switch (lt) {
 		case ME:
 			inflater.inflate(R.menu.me, menu);
@@ -105,10 +114,11 @@ public class DocListFragment extends SherlockListFragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
-			adapter.clear();
+			isRefresh = true;
 			start = 0;
+			maxId = null;
 			refresh.setActionView(R.layout.refresh);
-			new DocFetchTask().execute(DocListActivity.HOT_URL);
+			new DocFetchTask().execute(listUrl);
 		}
 		if (item.getItemId() == R.id.menu_home) {
 			if (cookie != null) {
@@ -172,15 +182,28 @@ public class DocListFragment extends SherlockListFragment implements
 		}
 	}
 
-	class DocFetchTask extends AsyncTask<String, Doc, Void> {
+	class DocFetchTask extends AsyncTask<String, Doc, List<Doc>> {
+		private int numberFetched = 0;
 
 		@Override
-		protected Void doInBackground(String... urls) {
+		protected List<Doc> doInBackground(String... urls) {
 			try {
 				String urlStr = urls[0];
-				if (start != 0) {
-					urlStr += "?start=" + String.valueOf(start);
+				if (lt == null) {
+					lt = getListType();
 				}
+				switch (lt) {
+				case HOT:
+					if (start != 0) {
+						urlStr += "?start=" + String.valueOf(start);
+					}
+					break;
+				default:
+					if (maxId != null) {
+						urlStr += "?max_id=" + maxId;
+					}
+				}
+				
 				URL url = new URL(urlStr);
 				HttpURLConnection connection = (HttpURLConnection) url
 						.openConnection();
@@ -195,22 +218,26 @@ public class DocListFragment extends SherlockListFragment implements
 				Gson gson = new Gson();
 				docList = gson.fromJson(reader, DocList.class);
 				reader.close();
+				for (Doc dd : DocListFragment.this.docs) {
+					Log.d("DocListFragment current docs: ", dd.title);
+				}
 				for (Doc doc : docList.items) {
 					if (doc.title == null || doc.title.length() == 0) {
 						continue;
 					}
+					Log.d("DocListFragment Fetched Docs: ", doc.title);
 					if (doc.thumb != null && doc.thumb.image_src != null) {
 						doc.thumb.image_path = downloadDocThumbnail(
 								doc.thumb.image_src, doc.docId);
-						Log.d("doc.image:", doc.thumb.image_path);
 					}
+					maxId = doc.docId;
 					this.publishProgress(doc);
 				}
 				hasMore = docList.has_more;
+				Log.d("Has more: ", String.valueOf(hasMore));
 				if (docList.has_more) {
 					start += 20;
 				}
-				Log.d("start: ", String.valueOf(start));
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -218,18 +245,20 @@ public class DocListFragment extends SherlockListFragment implements
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return null;
+			return docList.items;
 		}
 
 		@Override
 		protected void onProgressUpdate(Doc... docs) {
 			for (Doc doc : docs) {
-				adapter.add(doc);
+				if (DocListFragment.this.docs.indexOf(doc) == -1) {
+					numberFetched++;
+				}
 			}
 		}
 
 		@Override
-		protected void onPostExecute(Void unused) {
+		protected void onPostExecute(List<Doc> docs) {
 			if (refresh != null) {
 				refresh.setActionView(null);
 			}
@@ -243,6 +272,19 @@ public class DocListFragment extends SherlockListFragment implements
 				if (DocListFragment.this.getListView().getFooterViewsCount() == 0) {
 					DocListFragment.this.getListView().addFooterView(footer);
 				}
+			}
+			Log.d("DocListFragment: ", String.valueOf(numberFetched));
+			
+			if (numberFetched > 0) {
+				if (isRefresh) {
+					adapter.clear();
+				}
+				adapter.addAll(docs);
+				adapter.notifyDataSetChanged();
+				//numberFetched = 0;
+			}
+			if (isRefresh) {
+				isRefresh = false;
 			}
 		}
 
@@ -297,7 +339,7 @@ public class DocListFragment extends SherlockListFragment implements
 		if (v.getId() == R.id.load_more) {
 			v.setVisibility(View.GONE);
 			loadMorePB.setVisibility(View.VISIBLE);
-			new DocFetchTask().execute(DocListActivity.HOT_URL);
+			new DocFetchTask().execute(listUrl);
 		}
 	}
 
