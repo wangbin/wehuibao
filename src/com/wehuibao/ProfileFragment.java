@@ -237,7 +237,7 @@ public class ProfileFragment extends SherlockFragment implements
 
 	private void onAuthButtonClick(Button button, AuthService authService) {
 		Auth auth = (Auth) button.getTag();
-		if (auth == null) {
+		if (auth == null || !auth.isInstalled) {
 			Intent authIntent = new Intent(getActivity(), AuthActivity.class);
 			authIntent.putExtra(AuthFragment.AUTH_SERVICE,
 					authService.toString());
