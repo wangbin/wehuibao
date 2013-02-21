@@ -101,8 +101,14 @@ public class ProfileFragment extends SherlockFragment implements
 			button.setText(buildAuthLink(auth.auth_url, auth.screen_name));
 		} else {
 			String unAuthorizedUser = getString(R.string.unauthorized_user);
-			button.setText(buildAuthLink(
-					AUTH_URL + AuthService.SINA.toString(), unAuthorizedUser));
+			if (authList.is_self) {
+				button.setText(buildAuthLink(
+						AUTH_URL + AuthService.SINA.toString(),
+						unAuthorizedUser));
+			} else {
+				button.setText(unAuthorizedUser);
+			}
+
 		}
 		button.setClickable(authList.is_self || auth.isInstalled);
 	}
@@ -249,6 +255,7 @@ public class ProfileFragment extends SherlockFragment implements
 						AuthActivity.class);
 				authIntent.putExtra(AuthFragment.AUTH_SERVICE,
 						authService.toString());
+				authIntent.putExtra(AuthActivity.AUTH_SERVICE_NAME, auth.name);
 				startActivity(authIntent);
 			}
 		} else {
