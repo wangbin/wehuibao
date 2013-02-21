@@ -5,6 +5,7 @@
     android:textAlignment="gravity" >
 
     <TextView
+        android:textIsSelectable="false"
         android:id="@+id/sharer_name"
         android:layout_width="0dip"
         android:layout_height="wrap_content"
@@ -15,8 +16,8 @@
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
         android:paddingRight="4dp"
-        android:layout_marginLeft="1dp"
-        android:layout_marginRight="1dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
         android:textAlignment="gravity"
         android:textAppearance="@style/sharer_text_appearance" />
 

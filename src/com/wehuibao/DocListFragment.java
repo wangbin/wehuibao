@@ -157,7 +157,7 @@ public class DocListFragment extends SherlockListFragment implements
 			View row = super.getView(position, convertView, parent);
 			Doc doc = docs.get(position);
 			TextView title = (TextView) row.findViewById(R.id.doc_title);
-			title.setText(doc.title);
+			title.setText(doc.major_title);
 			TextView abbrev = (TextView) row.findViewById(R.id.doc_abbrev);
 			abbrev.setText(doc.abbrev_text);
 			ImageView thumb = (ImageView) row.findViewById(R.id.doc_thumb);

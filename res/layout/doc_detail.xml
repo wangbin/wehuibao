@@ -2,11 +2,11 @@
     android:id="@+id/scrollView1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scrollbarStyle="insideInset"
     android:background="#ededed"
+    android:paddingBottom="8dp"
     android:paddingLeft="10dp"
     android:paddingTop="8dp"
-    android:paddingBottom="8dp"
+    android:scrollbarStyle="insideInset"
     android:scrollbars="vertical" >
 
     <LinearLayout
@@ -14,21 +14,32 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/doc_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FFF"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:orientation="vertical"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+             android:layout_marginBottom="8dp"
+            android:background="#FFF" >
 
-        <WebView
-            android:id="@+id/doc_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:layout_marginBottom="8dp" />
+            <TextView
+                android:id="@+id/doc_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textIsSelectable="true" />
+
+            <WebView
+                android:id="@+id/doc_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+               
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:scrollbars="none" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/doc_sharers"
@@ -45,11 +56,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/rectangle"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" >
-
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp" >
         </TableLayout>
-
     </LinearLayout>
 
 </ScrollView>
