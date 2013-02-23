@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -51,8 +52,10 @@ public class DocDetailFragment extends SherlockFragment {
 		sharerTable = (TableLayout) view.findViewById(R.id.sharerTable);
 		Intent intent = this.getActivity().getIntent();
 		String docId = intent.getStringExtra(DocDetailActivity.DOC_ID);
-		if (doc == null || doc.docId != docId) {
+		if (doc == null || (!doc.docId.equalsIgnoreCase(docId))) {
 			new FetchDocTask().execute(DOC_URL + docId);
+		} else {
+			setUpView();
 		}
 		return view;
 	}
@@ -88,7 +91,70 @@ public class DocDetailFragment extends SherlockFragment {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void setUpView() {
+		docTitle.setText(doc.title);
+		docContent.setVerticalFadingEdgeEnabled(false);
+		docContent.getSettings().setDefaultTextEncodingName("UTF-8");
+		docContent.getSettings().setLayoutAlgorithm(
+				LayoutAlgorithm.SINGLE_COLUMN);
+		// docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+		StringBuffer buffer = new StringBuffer(
+				"<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><body>");
+		buffer.append(doc.abbrev);
+		buffer.append("</body></html>");
+		Log.d("DocDetailFragment", buffer.toString());
+		docContent
+				.loadDataWithBaseURL(doc.get_absolute_url(), buffer.toString(),
+						"text/html", "UTF-8", doc.get_absolute_url());
+		if (doc.sharers.size() > 0) {
+			int number = 0;
+			int total = doc.sharers.size();
+			for (User user : doc.sharers) {
+				number++;
+				TableRow row;
+				if (number < total) {
+					row = (TableRow) DocDetailFragment.this.getActivity()
+							.getLayoutInflater().inflate(R.layout.sharer, null);
+				} else {
+					row = (TableRow) DocDetailFragment.this.getActivity()
+							.getLayoutInflater()
+							.inflate(R.layout.sharer_last, null);
+				}
+
+				TextView name = (TextView) row.findViewById(R.id.sharer_name);
+				name.setText(user.name);
+				row.setTag(user);
+				row.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						User user = (User) v.getTag();
+						Intent profileIntent = new Intent(
+								DocDetailFragment.this.getActivity(),
+								ProfileActivity.class);
+						profileIntent.putExtra(ProfileActivity.USERID,
+								user.userId);
+						profileIntent.putExtra(ProfileActivity.USER_NAME,
+								user.name);
+						DocDetailFragment.this.startActivity(profileIntent);
+					}
+				});
+
+				sharerTable.addView(row, new TableLayout.LayoutParams(
+						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			}
+		}
+	}
+
 	class FetchDocTask extends AsyncTask<String, Void, Doc> {
+		private ProgressDialog dialog;
+
+		@Override
+		public void onPreExecute() {
+			dialog = new ProgressDialog(getActivity());
+			dialog.setMessage(getString(R.string.loading));
+			dialog.show();
+		}
 
 		@Override
 		protected Doc doInBackground(String... urls) {
@@ -116,6 +182,7 @@ public class DocDetailFragment extends SherlockFragment {
 
 		@Override
 		protected void onPostExecute(Doc doc) {
+			dialog.dismiss();
 			if (doc == null) {
 				Toast.makeText(getActivity(),
 						getString(R.string.err_msg_cannot_connet),
@@ -123,62 +190,7 @@ public class DocDetailFragment extends SherlockFragment {
 				return;
 			}
 			DocDetailFragment.this.doc = doc;
-			docTitle.setText(doc.title);
-			docContent.setVerticalFadingEdgeEnabled(false);
-			docContent.getSettings().setDefaultTextEncodingName("UTF-8");
-			docContent.getSettings().setLayoutAlgorithm(
-					LayoutAlgorithm.SINGLE_COLUMN);
-			// docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-			StringBuffer buffer = new StringBuffer(
-					"<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><body>");
-			buffer.append(doc.abbrev);
-			buffer.append("</body></html>");
-			Log.d("DocDetailFragment", buffer.toString());
-			docContent.loadDataWithBaseURL(doc.get_absolute_url(),
-					buffer.toString(), "text/html", "UTF-8",
-					doc.get_absolute_url());
-			if (doc.sharers.size() > 0) {
-				int number = 0;
-				int total = doc.sharers.size();
-				for (User user : doc.sharers) {
-					number++;
-					TableRow row;
-					if (number < total) {
-						row = (TableRow) DocDetailFragment.this.getActivity()
-								.getLayoutInflater()
-								.inflate(R.layout.sharer, null);
-					} else {
-						row = (TableRow) DocDetailFragment.this.getActivity()
-								.getLayoutInflater()
-								.inflate(R.layout.sharer_last, null);
-					}
-
-					TextView name = (TextView) row
-							.findViewById(R.id.sharer_name);
-					name.setText(user.name);
-					row.setTag(user);
-					row.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							// TODO Auto-generated method stub
-							User user = (User) v.getTag();
-							Intent profileIntent = new Intent(
-									DocDetailFragment.this.getActivity(),
-									ProfileActivity.class);
-							profileIntent.putExtra(ProfileActivity.USERID,
-									user.userId);
-							profileIntent.putExtra(ProfileActivity.USER_NAME,
-									user.name);
-							DocDetailFragment.this.startActivity(profileIntent);
-						}
-					});
-
-					sharerTable.addView(row, new TableLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT,
-							LayoutParams.WRAP_CONTENT));
-				}
-			}
+			setUpView();
 		}
 	}
-
 }
