@@ -22,7 +22,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -193,6 +192,11 @@ public class DocListFragment extends SherlockListFragment implements
 		public DocAdapter() {
 			super(DocListFragment.this.getActivity(), R.layout.doc_row,
 					R.id.doc_title, docs);
+		}
+		
+		@Override
+		public int getCount() {
+			return docs.size();
 		}
 
 		@Override
