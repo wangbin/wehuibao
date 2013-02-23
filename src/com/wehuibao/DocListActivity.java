@@ -12,12 +12,14 @@ import com.wehuibao.util.net.UserFetchTask;
 public class DocListActivity extends SherlockFragmentActivity {
 	public static final String LIST_TYPE = "LIST_TYPE";
 	public static final String LIST_URL = "LIST_URL";
+	public static final String IS_START = "IS_START";
 	private static final String ME = "@me";
 	private static final String USER_URL = "http://wehuibao.com/api/user/";
 	static final String HOT_URL = "http://wehuibao.com/api/hot/";
 	private static final String DOC_LIST_URL = "http://wehuibao.com/api/doclist/";
 	private ListType lt;
 	private String userId;
+	private boolean isStart = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +41,11 @@ public class DocListActivity extends SherlockFragmentActivity {
 			}
 		}
 		fragmentArgs.putString(LIST_TYPE, lt.toString());
+		
 		switch (lt) {
 		case ME:
 			userId = "@me";
+			isStart = true;
 			fragmentArgs.putString(LIST_URL, DOC_LIST_URL + ME);
 			getSupportActionBar().setTitle(getString(R.string.menu_home));
 			break;
@@ -51,10 +55,11 @@ public class DocListActivity extends SherlockFragmentActivity {
 			new FetchUserTask().execute(USER_URL + userId);
 			break;
 		default:
+			isStart = true;
 			fragmentArgs.putString(LIST_URL, HOT_URL);
 			this.getSupportActionBar().setTitle(R.string.menu_hot);
 		}
-		
+		fragmentArgs.putBoolean(IS_START, isStart);
 		DocListFragment docListFragment = new DocListFragment();
 		docListFragment.setArguments(fragmentArgs);
 		

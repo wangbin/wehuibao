@@ -12,14 +12,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import android.annotation.TargetApi;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -41,6 +44,8 @@ import com.wehuibao.json.DocList;
 public class DocListFragment extends SherlockListFragment implements
 		OnClickListener {
 
+	private final static String DOC_LIST_SUFFIX = "_DOC_LIST";
+
 	private List<Doc> docs = null;
 	private DocAdapter adapter;
 	private int start = 0;
@@ -55,6 +60,11 @@ public class DocListFragment extends SherlockListFragment implements
 	private boolean isRefresh = false;
 	private String maxId = null;
 	private ListType lt = null;
+	private boolean needFetch = true;
+
+	private boolean isStart() {
+		return getArguments().getBoolean(DocListActivity.IS_START);
+	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -69,9 +79,30 @@ public class DocListFragment extends SherlockListFragment implements
 
 		listUrl = getArguments().getString(DocListActivity.LIST_URL);
 
+		if (lt == null) {
+			lt = getListType();
+		}
+
 		if (docs == null) {
 			docs = new ArrayList<Doc>();
-			new DocFetchTask().execute(listUrl);
+			if (isStart() && (lt == ListType.ME || lt == ListType.HOT)) {
+				String docListStr = prefs.getString(lt.toString()
+						+ DOC_LIST_SUFFIX, null);
+				if (docListStr != null) {
+					Gson gson = new Gson();
+					docList = gson.fromJson(docListStr, DocList.class);
+					if (docList.items.size() > 0) {
+						docs = docList.items;
+						needFetch = false;
+						if (refresh != null) {
+							refresh.setActionView(null);
+						}
+					}
+				}
+			}
+			if (needFetch) {
+				new DocFetchTask().execute(listUrl);
+			}
 		}
 		adapter = new DocAdapter();
 
@@ -105,9 +136,11 @@ public class DocListFragment extends SherlockListFragment implements
 		default:
 			inflater.inflate(R.menu.doc_list, menu);
 		}
-
+		
 		refresh = menu.findItem(R.id.menu_refresh);
-		refresh.setActionView(R.layout.refresh);
+		if (needFetch) {
+			refresh.setActionView(R.layout.refresh);
+		}
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
@@ -189,9 +222,6 @@ public class DocListFragment extends SherlockListFragment implements
 		protected List<Doc> doInBackground(String... urls) {
 			try {
 				String urlStr = urls[0];
-				if (lt == null) {
-					lt = getListType();
-				}
 				switch (lt) {
 				case HOT:
 					if (start != 0) {
@@ -273,7 +303,7 @@ public class DocListFragment extends SherlockListFragment implements
 				if (isRefresh) {
 					adapter.clear();
 				}
-				adapter.addAll(docs);
+				addAllDocs(docs);
 				adapter.notifyDataSetChanged();
 				Toast.makeText(
 						getActivity(),
@@ -283,6 +313,17 @@ public class DocListFragment extends SherlockListFragment implements
 			}
 			if (isRefresh) {
 				isRefresh = false;
+			}
+		}
+
+		@TargetApi(11)
+		private void addAllDocs(List<Doc> docs) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				adapter.addAll(docs);
+			} else {
+				for (Doc doc : docs) {
+					adapter.add(doc);
+				}
 			}
 		}
 
@@ -347,5 +388,22 @@ public class DocListFragment extends SherlockListFragment implements
 		Intent intent = new Intent(this.getActivity(), DocDetailActivity.class);
 		intent.putExtra(DocDetailActivity.DOC_ID, doc.docId);
 		this.startActivity(intent);
+	}
+
+	@Override
+	public void onPause() {
+		docList.items = docs;
+		if (lt != null && docList != null) {
+			if (lt == ListType.ME || lt == ListType.HOT) {
+				Gson gson = new Gson();
+				SharedPreferences prefs = PreferenceManager
+						.getDefaultSharedPreferences(getActivity()
+								.getApplicationContext());
+				prefs.edit()
+						.putString(lt.toString() + "_DOC_LIST",
+								gson.toJson(docList)).commit();
+			}
+		}
+		super.onPause();
 	}
 }

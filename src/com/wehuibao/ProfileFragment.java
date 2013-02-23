@@ -248,6 +248,8 @@ public class ProfileFragment extends SherlockFragment implements
 			Intent authIntent = new Intent(getActivity(), AuthActivity.class);
 			authIntent.putExtra(AuthFragment.AUTH_SERVICE,
 					authService.toString());
+			authIntent.putExtra(AuthActivity.AUTH_SERVICE_NAME,
+					getString(authService.getServiceNameId()));
 			startActivity(authIntent);
 		} else if (!auth.isInstalled) {
 			if (authList.is_self) {
