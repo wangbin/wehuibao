@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -184,6 +185,16 @@ public class ProfileFragment extends SherlockFragment implements
 	}
 
 	class FetchUserTask extends UserFetchTask {
+		
+		private ProgressDialog dialog;
+		
+		@Override
+		public void onPreExecute() {
+			dialog = new ProgressDialog(getActivity());
+			dialog.setMessage(getString(R.string.loading));
+			dialog.show();
+		}
+		
 		@Override
 		public void updateConnection(HttpURLConnection connection) {
 			if (cookie != null) {
@@ -210,6 +221,7 @@ public class ProfileFragment extends SherlockFragment implements
 			}
 			ProfileFragment.this.authList = authList;
 			setUpView();
+			dialog.dismiss();
 		}
 	}
 
