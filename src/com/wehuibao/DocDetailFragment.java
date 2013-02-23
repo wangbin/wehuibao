@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -97,7 +97,7 @@ public class DocDetailFragment extends SherlockFragment {
 		docContent.getSettings().setDefaultTextEncodingName("UTF-8");
 		docContent.getSettings().setLayoutAlgorithm(
 				LayoutAlgorithm.SINGLE_COLUMN);
-		// docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+		docContent.setBackgroundColor(Color.parseColor("#EDEDED"));
 		StringBuffer buffer = new StringBuffer(
 				"<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><body>");
 		buffer.append(doc.abbrev);

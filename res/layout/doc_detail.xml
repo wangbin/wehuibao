@@ -15,32 +15,20 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/doc_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-             android:layout_marginBottom="8dp"
-            android:background="#FFF" >
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textIsSelectable="true" />
 
-            <TextView
-                android:id="@+id/doc_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textIsSelectable="true" />
-
-            <WebView
-                android:id="@+id/doc_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-               
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:scrollbars="none" />
-        </LinearLayout>
+        <WebView
+            android:id="@+id/doc_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:scrollbars="none" />
 
         <TextView
             android:id="@+id/doc_sharers"

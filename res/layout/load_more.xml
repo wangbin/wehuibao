@@ -12,8 +12,7 @@
         android:layout_centerHorizontal="true"
         android:gravity="center_vertical|center"
         android:text="@string/load_more"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textSize="18sp" />
 
     <ProgressBar
         android:id="@+id/load_more_pb"
