@@ -2,17 +2,23 @@
     android:id="@+id/scrollView1"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:paddingBottom="8dp"
+    android:paddingLeft="10dp"
+    android:paddingTop="8dp"
+    android:scrollbarStyle="insideInset"
     android:scrollbars="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginRight="4dp"
         android:orientation="vertical" >
 
         <TextView
             android:id="@+id/accountTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="@string/account"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -20,28 +26,41 @@
             android:id="@+id/profileName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:drawableLeft="@drawable/ic_contact_picture"
-            android:gravity="center_vertical"
+            android:drawablePadding="4dp"
+            android:gravity="top"
             android:text="@string/unauthorized_user"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/profileDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/rectangle"
+            android:padding="8dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/weibo_bindings_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
             android:text="@string/weibo_bindings"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:background="@drawable/rectangle"
+            android:orientation="horizontal"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="8dp" >
+
             <Button
                 android:id="@+id/sinaButton"
                 android:layout_width="0dp"
@@ -55,8 +74,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:drawableTop="@drawable/qq_logo" />
-
-            
 
             <Button
                 android:id="@+id/doubanButton"
@@ -73,19 +90,28 @@
                 android:drawableTop="@drawable/fanfou_logo" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/logout"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/logout"
-            android:visibility="gone" />
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/homeButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/user_home"
-            android:visibility="gone" />
+            <Button
+                android:id="@+id/homeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/user_home"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/logout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/logout"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>
