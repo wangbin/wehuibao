@@ -73,7 +73,7 @@ public class ProfileFragment extends SherlockFragment implements
 				.getDefaultSharedPreferences(getActivity()
 						.getApplicationContext());
 		cookie = prefs.getString("cookie", null);
-		if (!userId.isEmpty() && authList == null) {
+		if (userId != null && !userId.isEmpty() && authList == null) {
 			String url = "http://wehuibao.com/api/user/" + userId;
 			new FetchUserTask().execute(url);
 		} else {
