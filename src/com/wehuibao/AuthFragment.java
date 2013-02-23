@@ -12,6 +12,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.wehuibao.json.Credential;
@@ -72,6 +73,14 @@ public class AuthFragment extends SherlockFragment {
 			} else {
 				super.onPageStarted(view, url, favicon);
 			}
+		}
+
+		@Override
+		public void onReceivedError(WebView view, int errorCode,
+				String description, String failingUrl) {
+			Toast.makeText(getActivity(),
+					getString(R.string.err_msg_cannot_connet),
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 

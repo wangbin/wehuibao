@@ -24,6 +24,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.wehuibao.json.Auth;
@@ -200,9 +201,14 @@ public class ProfileFragment extends SherlockFragment implements
 		}
 
 		@Override
-		protected void onPostExecute(AuthList authList) {
+		public void onPostExecute(AuthList authList) {
+			if (authList == null) {
+				Toast.makeText(getActivity(),
+						getString(R.string.err_msg_cannot_connet),
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
 			ProfileFragment.this.authList = authList;
-
 			setUpView();
 		}
 	}

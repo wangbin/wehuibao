@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.webkit.WebView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
@@ -33,6 +35,7 @@ public class DocDetailFragment extends SherlockFragment {
 	private TextView docTitle;
 	private WebView docContent;
 	private TableLayout sharerTable;
+	private boolean isNetError = false;
 
 	private final static String DOC_URL = "http://wehuibao.com/api/doc/";
 	private Doc doc = null;
@@ -113,13 +116,19 @@ public class DocDetailFragment extends SherlockFragment {
 
 		@Override
 		protected void onPostExecute(Doc doc) {
+			if (doc == null) {
+				Toast.makeText(getActivity(),
+						getString(R.string.err_msg_cannot_connet),
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
 			DocDetailFragment.this.doc = doc;
 			docTitle.setText(doc.title);
 			docContent.setVerticalFadingEdgeEnabled(false);
 			docContent.getSettings().setDefaultTextEncodingName("UTF-8");
 			docContent.getSettings().setLayoutAlgorithm(
 					LayoutAlgorithm.SINGLE_COLUMN);
-			//docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+			// docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 			docContent
 					.loadData(doc.abbrev, "text/html; charset=utf-8", "UTF-8");
 			if (doc.sharers.size() > 0) {

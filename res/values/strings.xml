@@ -27,5 +27,6 @@
     <string name="qq">腾讯微博</string>
     <string name="douban">豆瓣</string>
     <string name="fanfou">饭否</string>
+    <string name="err_msg_cannot_connet">现在无法连接服务器，请稍后重试</string>
 
 </resources>

@@ -136,7 +136,7 @@ public class DocListFragment extends SherlockListFragment implements
 		default:
 			inflater.inflate(R.menu.doc_list, menu);
 		}
-		
+
 		refresh = menu.findItem(R.id.menu_refresh);
 		if (needFetch) {
 			refresh.setActionView(R.layout.refresh);
@@ -215,11 +215,11 @@ public class DocListFragment extends SherlockListFragment implements
 		}
 	}
 
-	class DocFetchTask extends AsyncTask<String, Doc, List<Doc>> {
+	class DocFetchTask extends AsyncTask<String, Doc, DocList> {
 		private int numberFetched = 0;
 
 		@Override
-		protected List<Doc> doInBackground(String... urls) {
+		protected DocList doInBackground(String... urls) {
 			try {
 				String urlStr = urls[0];
 				switch (lt) {
@@ -270,7 +270,7 @@ public class DocListFragment extends SherlockListFragment implements
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return docList.items;
+			return docList;
 		}
 
 		@Override
@@ -283,7 +283,14 @@ public class DocListFragment extends SherlockListFragment implements
 		}
 
 		@Override
-		protected void onPostExecute(List<Doc> docs) {
+		protected void onPostExecute(DocList docList) {
+			if (docList == null) {
+				Toast.makeText(getActivity(),
+						getString(R.string.err_msg_cannot_connet),
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
+			docs = docList.items;
 			if (refresh != null) {
 				refresh.setActionView(null);
 			}
