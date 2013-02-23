@@ -143,6 +143,12 @@ public class DocListFragment extends SherlockListFragment implements
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
+	private void loadMore() {
+		loadMore.setVisibility(View.GONE);
+		loadMorePB.setVisibility(View.VISIBLE);
+		new DocFetchTask().execute(listUrl);
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
@@ -193,7 +199,7 @@ public class DocListFragment extends SherlockListFragment implements
 			super(DocListFragment.this.getActivity(), R.layout.doc_row,
 					R.id.doc_title, docs);
 		}
-		
+
 		@Override
 		public int getCount() {
 			return docs.size();
@@ -219,9 +225,8 @@ public class DocListFragment extends SherlockListFragment implements
 		}
 	}
 
-	class DocFetchTask extends AsyncTask<String, Doc, DocList> {
+	class DocFetchTask extends AsyncTask<String, Void, DocList> {
 		private int numberFetched = 0;
-
 		@Override
 		protected DocList doInBackground(String... urls) {
 			try {
@@ -261,7 +266,6 @@ public class DocListFragment extends SherlockListFragment implements
 								doc.thumb.image_src, doc.docId);
 					}
 					maxId = doc.docId;
-					this.publishProgress(doc);
 				}
 				hasMore = docList.has_more;
 				if (docList.has_more) {
@@ -278,15 +282,6 @@ public class DocListFragment extends SherlockListFragment implements
 		}
 
 		@Override
-		protected void onProgressUpdate(Doc... docs) {
-			for (Doc doc : docs) {
-				if (DocListFragment.this.docs.indexOf(doc) == -1) {
-					numberFetched++;
-				}
-			}
-		}
-
-		@Override
 		protected void onPostExecute(DocList docList) {
 			if (docList == null) {
 				Toast.makeText(getActivity(),
@@ -294,7 +289,7 @@ public class DocListFragment extends SherlockListFragment implements
 						Toast.LENGTH_SHORT).show();
 				return;
 			}
-			docs = docList.items;
+
 			if (refresh != null) {
 				refresh.setActionView(null);
 			}
@@ -309,12 +304,22 @@ public class DocListFragment extends SherlockListFragment implements
 					DocListFragment.this.getListView().addFooterView(footer);
 				}
 			}
+			if (isRefresh) {
+				adapter.clear();
+			}
+			for (Doc doc : docList.items) {
+				if (!isRefresh) {
+					if (DocListFragment.this.docs.indexOf(doc) == -1) {
+						numberFetched++;
+						adapter.add(doc);
+					}
+				} else {
+					numberFetched++;
+					adapter.add(doc);
+				}
+			}
 
 			if (numberFetched > 0) {
-				if (isRefresh) {
-					adapter.clear();
-				}
-				addAllDocs(docs);
 				adapter.notifyDataSetChanged();
 				Toast.makeText(
 						getActivity(),
@@ -323,18 +328,8 @@ public class DocListFragment extends SherlockListFragment implements
 						Toast.LENGTH_SHORT).show();
 			}
 			if (isRefresh) {
+				DocListFragment.this.getListView().setSelectionAfterHeaderView();
 				isRefresh = false;
-			}
-		}
-
-		@TargetApi(11)
-		private void addAllDocs(List<Doc> docs) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				adapter.addAll(docs);
-			} else {
-				for (Doc doc : docs) {
-					adapter.add(doc);
-				}
 			}
 		}
 
@@ -387,18 +382,21 @@ public class DocListFragment extends SherlockListFragment implements
 	@Override
 	public void onClick(View v) {
 		if (v.getId() == R.id.load_more) {
-			v.setVisibility(View.GONE);
-			loadMorePB.setVisibility(View.VISIBLE);
-			new DocFetchTask().execute(listUrl);
+			loadMore();
 		}
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Doc doc = docs.get(position);
-		Intent intent = new Intent(this.getActivity(), DocDetailActivity.class);
-		intent.putExtra(DocDetailActivity.DOC_ID, doc.docId);
-		this.startActivity(intent);
+		if (position == docs.size()) {
+			loadMore();
+		} else {
+			Doc doc = docs.get(position);
+			Intent intent = new Intent(this.getActivity(),
+					DocDetailActivity.class);
+			intent.putExtra(DocDetailActivity.DOC_ID, doc.docId);
+			this.startActivity(intent);
+		}
 	}
 
 	@Override
