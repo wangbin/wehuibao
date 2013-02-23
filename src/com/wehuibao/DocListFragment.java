@@ -108,8 +108,8 @@ public class DocListFragment extends SherlockListFragment implements
 		footer = this.getActivity().getLayoutInflater()
 				.inflate(R.layout.load_more, null);
 		this.getListView().addFooterView(footer);
-		loadMore = (TextView) this.getActivity().findViewById(R.id.load_more);
-		loadMorePB = (ProgressBar) this.getActivity().findViewById(
+		loadMore = (TextView) footer.findViewById(R.id.load_more);
+		loadMorePB = (ProgressBar) footer.findViewById(
 				R.id.load_more_pb);
 		loadMore.setOnClickListener(this);
 		this.setListAdapter(adapter);

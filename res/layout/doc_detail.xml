@@ -5,8 +5,9 @@
     android:background="#ededed"
     android:paddingBottom="8dp"
     android:paddingLeft="10dp"
+    android:paddingRight="3dp"
     android:paddingTop="8dp"
-    android:scrollbarStyle="insideInset"
+    android:scrollbarStyle="outsideInset"
     android:scrollbars="vertical" >
 
     <LinearLayout
