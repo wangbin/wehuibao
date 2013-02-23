@@ -51,7 +51,7 @@ public class ProfileFragment extends SherlockFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// setRetainInstance(true);
+		setRetainInstance(true);
 		setHasOptionsMenu(true);
 		View view = inflater.inflate(R.layout.profile, container, false);
 		Intent intent = this.getActivity().getIntent();
