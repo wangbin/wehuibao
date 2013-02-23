@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,6 @@ public class DocDetailFragment extends SherlockFragment {
 	private TextView docTitle;
 	private WebView docContent;
 	private TableLayout sharerTable;
-	private boolean isNetError = false;
 
 	private final static String DOC_URL = "http://wehuibao.com/api/doc/";
 	private Doc doc = null;
@@ -129,8 +129,14 @@ public class DocDetailFragment extends SherlockFragment {
 			docContent.getSettings().setLayoutAlgorithm(
 					LayoutAlgorithm.SINGLE_COLUMN);
 			// docContent.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-			docContent
-					.loadData(doc.abbrev, "text/html; charset=utf-8", "UTF-8");
+			StringBuffer buffer = new StringBuffer(
+					"<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><body>");
+			buffer.append(doc.abbrev);
+			buffer.append("</body></html>");
+			Log.d("DocDetailFragment", buffer.toString());
+			docContent.loadDataWithBaseURL(doc.get_absolute_url(),
+					buffer.toString(), "text/html", "UTF-8",
+					doc.get_absolute_url());
 			if (doc.sharers.size() > 0) {
 				int number = 0;
 				int total = doc.sharers.size();
