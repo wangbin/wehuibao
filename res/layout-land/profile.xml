@@ -5,6 +5,7 @@
     android:paddingBottom="8dp"
     android:paddingLeft="10dp"
     android:paddingTop="8dp"
+    android:background="#EDEDED"
     android:scrollbarStyle="insideInset"
     android:scrollbars="vertical" >
 
@@ -35,6 +36,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:textIsSelectable="true"
             android:id="@+id/profileDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -64,28 +66,28 @@
             <Button
                 android:id="@+id/sinaButton"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:drawableTop="@drawable/sina_logo" />
 
             <Button
                 android:id="@+id/qqButton"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:drawableTop="@drawable/qq_logo" />
 
             <Button
                 android:id="@+id/doubanButton"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:drawableTop="@drawable/douban_logo" />
 
             <Button
                 android:id="@+id/fanfouButton"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:drawableTop="@drawable/fanfou_logo" />
         </LinearLayout>
