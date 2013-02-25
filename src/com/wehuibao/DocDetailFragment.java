@@ -127,7 +127,6 @@ public class DocDetailFragment extends SherlockFragment {
 				row.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						// TODO Auto-generated method stub
 						User user = (User) v.getTag();
 						Intent profileIntent = new Intent(
 								DocDetailFragment.this.getActivity(),
@@ -184,9 +183,12 @@ public class DocDetailFragment extends SherlockFragment {
 		protected void onPostExecute(Doc doc) {
 			dialog.dismiss();
 			if (doc == null) {
-				Toast.makeText(getActivity(),
-						getString(R.string.err_msg_cannot_connet),
-						Toast.LENGTH_SHORT).show();
+				if (isAdded()) {
+					Toast.makeText(getActivity(),
+							getString(R.string.err_msg_cannot_connet),
+							Toast.LENGTH_SHORT).show();
+				}
+
 				return;
 			}
 			DocDetailFragment.this.doc = doc;

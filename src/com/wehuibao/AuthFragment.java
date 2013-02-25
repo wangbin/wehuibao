@@ -98,6 +98,7 @@ public class AuthFragment extends SherlockFragment {
 				prefs.edit().putString("userId", credential.userId)
 						.putString("userName", credential.name).commit();
 				startActivity(intent);
+				getActivity().finish();
 			}
 		}
 

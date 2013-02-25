@@ -28,7 +28,7 @@ public class DocListActivity extends SherlockFragmentActivity {
 				.getDefaultSharedPreferences(getApplicationContext());
 		String cookie = prefs.getString("cookie", null);
 		Bundle fragmentArgs = new Bundle();
-		
+
 		Intent intent = getIntent();
 		String listType = intent.getStringExtra(LIST_TYPE);
 		if (listType != null) {
@@ -41,7 +41,7 @@ public class DocListActivity extends SherlockFragmentActivity {
 			}
 		}
 		fragmentArgs.putString(LIST_TYPE, lt.toString());
-		
+
 		switch (lt) {
 		case ME:
 			userId = "@me";
@@ -62,14 +62,14 @@ public class DocListActivity extends SherlockFragmentActivity {
 		fragmentArgs.putBoolean(IS_START, isStart);
 		DocListFragment docListFragment = new DocListFragment();
 		docListFragment.setArguments(fragmentArgs);
-		
+
 		if (this.getSupportFragmentManager().findFragmentById(
 				android.R.id.content) == null) {
 			this.getSupportFragmentManager().beginTransaction()
 					.add(android.R.id.content, docListFragment).commit();
 		}
 	}
-	
+
 	class FetchUserTask extends UserFetchTask {
 		@Override
 		public void onPostExecute(AuthList authList) {

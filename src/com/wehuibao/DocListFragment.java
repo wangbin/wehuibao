@@ -52,7 +52,6 @@ public class DocListFragment extends SherlockListFragment implements
 	private MenuItem refresh = null;
 	private View footer;
 	private String listUrl;
-	private String cookie;
 	private DocList docList;
 	private boolean isRefresh = false;
 	private String maxId = null;
@@ -61,6 +60,13 @@ public class DocListFragment extends SherlockListFragment implements
 
 	private boolean isStart() {
 		return getArguments().getBoolean(DocListActivity.IS_START);
+	}
+
+	private String getCookie() {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getActivity()
+						.getApplicationContext());
+		return prefs.getString("cookie", null);
 	}
 
 	@Override
@@ -72,7 +78,6 @@ public class DocListFragment extends SherlockListFragment implements
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity()
 						.getApplicationContext());
-		cookie = prefs.getString("cookie", null);
 
 		listUrl = getArguments().getString(DocListActivity.LIST_URL);
 
@@ -98,6 +103,7 @@ public class DocListFragment extends SherlockListFragment implements
 				}
 			}
 			if (needFetch) {
+				isRefresh = true;
 				new DocFetchTask().execute(listUrl);
 			}
 		}
@@ -107,8 +113,7 @@ public class DocListFragment extends SherlockListFragment implements
 				.inflate(R.layout.load_more, null);
 		this.getListView().addFooterView(footer);
 		loadMore = (TextView) footer.findViewById(R.id.load_more);
-		loadMorePB = (ProgressBar) footer.findViewById(
-				R.id.load_more_pb);
+		loadMorePB = (ProgressBar) footer.findViewById(R.id.load_more_pb);
 		loadMore.setOnClickListener(this);
 		this.setListAdapter(adapter);
 	}
@@ -157,6 +162,7 @@ public class DocListFragment extends SherlockListFragment implements
 			new DocFetchTask().execute(listUrl);
 		}
 		if (item.getItemId() == R.id.menu_home) {
+			String cookie = getCookie();
 			if (cookie != null) {
 				Intent homeIntent = new Intent(getActivity(),
 						DocListActivity.class);
@@ -223,8 +229,9 @@ public class DocListFragment extends SherlockListFragment implements
 		}
 	}
 
-	class DocFetchTask extends AsyncTask<String, Void, DocList> {
-		private int numberFetched = 0;
+	class DocFetchTask extends AsyncTask<String, Doc, DocList> {
+		private List<Doc> fetchedDocs = new ArrayList<Doc>();
+
 		@Override
 		protected DocList doInBackground(String... urls) {
 			try {
@@ -246,6 +253,7 @@ public class DocListFragment extends SherlockListFragment implements
 						.openConnection();
 				connection.setReadTimeout(5000);
 				connection.setRequestMethod("GET");
+				String cookie = getCookie();
 				if (cookie != null) {
 					connection.setRequestProperty("Cookie", cookie);
 				}
@@ -264,6 +272,7 @@ public class DocListFragment extends SherlockListFragment implements
 								doc.thumb.image_src, doc.docId);
 					}
 					maxId = doc.docId;
+					publishProgress(doc);
 				}
 				hasMore = docList.has_more;
 				if (docList.has_more) {
@@ -280,6 +289,15 @@ public class DocListFragment extends SherlockListFragment implements
 		}
 
 		@Override
+		protected void onProgressUpdate(Doc... docs) {
+			for (Doc doc : docs) {
+				if (DocListFragment.this.docs.indexOf(doc) == -1) {
+					fetchedDocs.add(doc);
+				}
+			}
+		}
+
+		@Override
 		protected void onPostExecute(DocList docList) {
 			if (docList == null) {
 				Toast.makeText(getActivity(),
@@ -288,9 +306,6 @@ public class DocListFragment extends SherlockListFragment implements
 				return;
 			}
 
-			if (refresh != null) {
-				refresh.setActionView(null);
-			}
 			if (loadMorePB.getVisibility() == View.VISIBLE) {
 				loadMorePB.setVisibility(View.GONE);
 				loadMore.setVisibility(View.VISIBLE);
@@ -304,29 +319,29 @@ public class DocListFragment extends SherlockListFragment implements
 			}
 			if (isRefresh) {
 				adapter.clear();
-			}
-			for (Doc doc : docList.items) {
-				if (!isRefresh) {
-					if (DocListFragment.this.docs.indexOf(doc) == -1) {
-						numberFetched++;
-						adapter.add(doc);
-					}
-				} else {
-					numberFetched++;
+				for (Doc doc : docList.items) {
+					adapter.add(doc);
+				}
+			} else {
+				for (Doc doc : fetchedDocs) {
 					adapter.add(doc);
 				}
 			}
-
-			if (numberFetched > 0) {
+			if (fetchedDocs.size() > 0) {
 				adapter.notifyDataSetChanged();
 				Toast.makeText(
 						getActivity(),
-						String.valueOf(numberFetched)
+						String.valueOf(fetchedDocs.size())
 								+ getString(R.string.number_of_new_docs),
 						Toast.LENGTH_SHORT).show();
 			}
+
 			if (isRefresh) {
-				DocListFragment.this.getListView().setSelectionAfterHeaderView();
+				if (refresh != null) {
+					refresh.setActionView(null);
+				}
+				DocListFragment.this.getListView()
+						.setSelectionAfterHeaderView();
 				isRefresh = false;
 			}
 		}
@@ -412,5 +427,17 @@ public class DocListFragment extends SherlockListFragment implements
 			}
 		}
 		super.onPause();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (lt == ListType.ME && getCookie() == null) {
+			Intent hotIntent = new Intent(getActivity(), DocListActivity.class);
+			hotIntent.putExtra(DocListActivity.LIST_TYPE,
+					ListType.HOT.toString());
+			startActivity(hotIntent);
+			getActivity().finish();
+		}
 	}
 }

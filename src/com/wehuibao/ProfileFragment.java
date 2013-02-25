@@ -44,7 +44,6 @@ public class ProfileFragment extends SherlockFragment implements
 	private Button qqButton;
 	private Button doubanButton;
 	private Button fanfouButton;
-	private String cookie;
 	private static final String LOGOUT_URL = "http://wehuibao.com/api/logout";
 	private static final String AUTH_URL = "http://weihuibao.com/apilogin/";
 
@@ -54,8 +53,7 @@ public class ProfileFragment extends SherlockFragment implements
 		setRetainInstance(true);
 		setHasOptionsMenu(true);
 		View view = inflater.inflate(R.layout.profile, container, false);
-		Intent intent = this.getActivity().getIntent();
-		String userId = intent.getStringExtra(ProfileActivity.USERID);
+		
 		profileName = (TextView) view.findViewById(R.id.profileName);
 		profileDesc = (TextView) view.findViewById(R.id.profileDescription);
 		homeButton = (Button) view.findViewById(R.id.homeButton);
@@ -69,10 +67,23 @@ public class ProfileFragment extends SherlockFragment implements
 		fanfouButton = (Button) view.findViewById(R.id.fanfouButton);
 		fanfouButton.setOnClickListener(this);
 		logoutButton = (Button) view.findViewById(R.id.logout);
+		
+		return view;
+	}
+	
+	private String getCookie() {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity()
 						.getApplicationContext());
-		cookie = prefs.getString("cookie", null);
+		return prefs.getString("cookie", null);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		String cookie = getCookie();
+		Intent intent = this.getActivity().getIntent();
+		String userId = intent.getStringExtra(ProfileActivity.USERID);
 		if (userId != null && !userId.isEmpty() && authList == null) {
 			String url = "http://wehuibao.com/api/user/" + userId;
 			new FetchUserTask().execute(url);
@@ -84,7 +95,7 @@ public class ProfileFragment extends SherlockFragment implements
 			logoutButton.setVisibility(View.VISIBLE);
 			logoutButton.setOnClickListener(this);
 		}
-		return view;
+		
 	}
 
 	private Spanned buildAuthLink(String url, String desc) {
@@ -197,6 +208,7 @@ public class ProfileFragment extends SherlockFragment implements
 		
 		@Override
 		public void updateConnection(HttpURLConnection connection) {
+			String cookie = getCookie();
 			if (cookie != null) {
 				connection.setRequestProperty("Cookie", cookie);
 			}
@@ -220,8 +232,8 @@ public class ProfileFragment extends SherlockFragment implements
 				return;
 			}
 			ProfileFragment.this.authList = authList;
-			setUpView();
 			dialog.dismiss();
+			setUpView();
 		}
 	}
 
@@ -269,6 +281,7 @@ public class ProfileFragment extends SherlockFragment implements
 			authIntent.putExtra(AuthActivity.AUTH_SERVICE_NAME,
 					getString(authService.getServiceNameId()));
 			startActivity(authIntent);
+			getActivity().finish();
 		} else if (!auth.isInstalled) {
 			if (authList.is_self) {
 				Intent authIntent = new Intent(getActivity(),
@@ -289,6 +302,7 @@ public class ProfileFragment extends SherlockFragment implements
 
 		@Override
 		protected Void doInBackground(Void... params) {
+			String cookie = getCookie();
 			if (cookie == null) {
 				return null;
 			}
@@ -318,10 +332,13 @@ public class ProfileFragment extends SherlockFragment implements
 			SharedPreferences prefs = PreferenceManager
 					.getDefaultSharedPreferences(getActivity()
 							.getApplicationContext());
-			prefs.edit().remove("cookie").commit();
+			prefs.edit().clear().commit();
 			Intent profileIntent = new Intent(getActivity(),
 					ProfileActivity.class);
+			profileIntent.putExtra(ProfileActivity.USER_NAME, authList.name);
+			profileIntent.putExtra(ProfileActivity.USERID, authList.userId);
 			startActivity(profileIntent);
+			getActivity().finish();
 		}
 	}
 }
