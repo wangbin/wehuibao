@@ -9,17 +9,19 @@ import java.net.URL;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -37,7 +39,7 @@ public class DocDetailFragment extends SherlockFragment {
 	private TextView docTitle;
 	private WebView docContent;
 	private TableLayout sharerTable;
-
+	private LinearLayout sharerLayout;
 	private final static String DOC_URL = "http://wehuibao.com/api/doc/";
 	private Doc doc = null;
 
@@ -50,6 +52,7 @@ public class DocDetailFragment extends SherlockFragment {
 		docTitle = (TextView) view.findViewById(R.id.doc_title);
 		docContent = (WebView) view.findViewById(R.id.doc_content);
 		sharerTable = (TableLayout) view.findViewById(R.id.sharerTable);
+		sharerLayout = (LinearLayout) view.findViewById(R.id.sharer_layout);
 		Intent intent = this.getActivity().getIntent();
 		String docId = intent.getStringExtra(DocDetailActivity.DOC_ID);
 		if (doc == null || (!doc.docId.equalsIgnoreCase(docId))) {
@@ -102,7 +105,6 @@ public class DocDetailFragment extends SherlockFragment {
 				"<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><body>");
 		buffer.append(doc.abbrev);
 		buffer.append("</body></html>");
-		Log.d("DocDetailFragment", buffer.toString());
 		docContent
 				.loadDataWithBaseURL(doc.get_absolute_url(), buffer.toString(),
 						"text/html", "UTF-8", doc.get_absolute_url());
@@ -128,20 +130,32 @@ public class DocDetailFragment extends SherlockFragment {
 					@Override
 					public void onClick(View v) {
 						User user = (User) v.getTag();
-						Intent profileIntent = new Intent(
+						Intent docListIntent = new Intent(
 								DocDetailFragment.this.getActivity(),
-								ProfileActivity.class);
-						profileIntent.putExtra(ProfileActivity.USERID,
-								user.userId);
-						profileIntent.putExtra(ProfileActivity.USER_NAME,
-								user.name);
-						DocDetailFragment.this.startActivity(profileIntent);
+								DocListActivity.class);
+						SharedPreferences prefs = PreferenceManager
+								.getDefaultSharedPreferences(getActivity()
+										.getApplicationContext());
+						String myUserId = prefs.getString("userId", null);
+						if (myUserId != null
+								&& myUserId.equalsIgnoreCase(user.userId)) {
+							docListIntent.putExtra(DocListActivity.LIST_TYPE,
+									ListType.ME.toString());
+						} else {
+							docListIntent.putExtra(DocListActivity.LIST_TYPE,
+									user.userId);
+							docListIntent.putExtra(DocListActivity.USER_NAME,
+									user.name);
+						}
+
+						DocDetailFragment.this.startActivity(docListIntent);
 					}
 				});
 
 				sharerTable.addView(row, new TableLayout.LayoutParams(
 						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			}
+			sharerLayout.setVisibility(View.VISIBLE);
 		}
 	}
 

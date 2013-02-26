@@ -1,7 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollView1"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="#ededed"
     android:paddingBottom="8dp"
     android:paddingLeft="10dp"
@@ -30,24 +30,32 @@
             android:paddingRight="8dp"
             android:scrollbars="none" />
 
-        <TextView
-            android:id="@+id/doc_sharers"
+        <LinearLayout
+            android:id="@+id/sharer_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:drawablePadding="8dp"
-            android:drawableTop="@drawable/list_divisor"
-            android:text="@string/doc_sharers"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:orientation="vertical"
+            android:visibility="invisible" >
 
-        <TableLayout
-            android:id="@+id/sharerTable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/rectangle"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp" >
-        </TableLayout>
+            <TextView
+                android:id="@+id/doc_sharers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:drawablePadding="8dp"
+                android:drawableTop="@drawable/list_divisor"
+                android:text="@string/doc_sharers"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TableLayout
+                android:id="@+id/sharerTable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp" >
+            </TableLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>
