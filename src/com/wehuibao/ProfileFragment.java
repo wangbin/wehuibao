@@ -142,6 +142,7 @@ public class ProfileFragment extends SherlockFragment implements
 							AUTH_URL + AuthService.FANFOU.toString(),
 							unAuthorizedUser));
 			profileDesc.setVisibility(View.GONE);
+			profileName.setText(getString(R.string.unauthorized_user));
 
 		} else {
 			if (authList.is_self) {
@@ -253,6 +254,7 @@ public class ProfileFragment extends SherlockFragment implements
 				} else {
 					listIntent.putExtra(DocListActivity.LIST_TYPE,
 							authList.userId);
+					listIntent.putExtra(DocListActivity.USER_NAME, authList.name);
 				}
 				startActivity(listIntent);
 			}

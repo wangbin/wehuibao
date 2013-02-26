@@ -31,7 +31,7 @@
             android:drawableLeft="@drawable/ic_contact_picture"
             android:drawablePadding="4dp"
             android:gravity="top"
-            android:text="@string/unauthorized_user"
+            android:textIsSelectable="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold" />
 
