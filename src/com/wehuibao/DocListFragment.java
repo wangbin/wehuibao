@@ -276,7 +276,11 @@ public class DocListFragment extends SherlockListFragment implements
 				}
 				hasMore = docList.has_more;
 				if (docList.has_more) {
-					start += 20;
+					if (isRefresh) {
+						start = 20;
+					} else {
+						start += 20;
+					}
 				}
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
@@ -300,9 +304,11 @@ public class DocListFragment extends SherlockListFragment implements
 		@Override
 		protected void onPostExecute(DocList docList) {
 			if (docList == null) {
-				Toast.makeText(getActivity(),
-						getString(R.string.err_msg_cannot_connet),
-						Toast.LENGTH_SHORT).show();
+				if (isAdded()) {
+					Toast.makeText(getActivity(),
+							getString(R.string.err_msg_cannot_connet),
+							Toast.LENGTH_SHORT).show();
+				}
 				return;
 			}
 
@@ -329,11 +335,13 @@ public class DocListFragment extends SherlockListFragment implements
 			}
 			if (fetchedDocs.size() > 0) {
 				adapter.notifyDataSetChanged();
-				Toast.makeText(
-						getActivity(),
-						String.valueOf(fetchedDocs.size())
-								+ getString(R.string.number_of_new_docs),
-						Toast.LENGTH_SHORT).show();
+				if (isAdded()) {
+					Toast.makeText(
+							getActivity(),
+							String.valueOf(fetchedDocs.size())
+									+ getString(R.string.number_of_new_docs),
+							Toast.LENGTH_SHORT).show();
+				}
 			}
 
 			if (isRefresh) {
@@ -414,16 +422,18 @@ public class DocListFragment extends SherlockListFragment implements
 
 	@Override
 	public void onPause() {
-		docList.items = docs;
-		if (lt != null && docList != null) {
-			if (lt == ListType.ME || lt == ListType.HOT) {
-				Gson gson = new Gson();
-				SharedPreferences prefs = PreferenceManager
-						.getDefaultSharedPreferences(getActivity()
-								.getApplicationContext());
-				prefs.edit()
-						.putString(lt.toString() + "_DOC_LIST",
-								gson.toJson(docList)).commit();
+		if (docList != null) {
+			docList.items = docs;
+			if (lt != null) {
+				if (lt == ListType.ME || lt == ListType.HOT) {
+					Gson gson = new Gson();
+					SharedPreferences prefs = PreferenceManager
+							.getDefaultSharedPreferences(getActivity()
+									.getApplicationContext());
+					prefs.edit()
+							.putString(lt.toString() + "_DOC_LIST",
+									gson.toJson(docList)).commit();
+				}
 			}
 		}
 		super.onPause();

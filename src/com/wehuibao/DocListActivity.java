@@ -6,15 +6,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.wehuibao.json.AuthList;
-import com.wehuibao.util.net.UserFetchTask;
 
 public class DocListActivity extends SherlockFragmentActivity {
 	public static final String LIST_TYPE = "LIST_TYPE";
 	public static final String LIST_URL = "LIST_URL";
 	public static final String IS_START = "IS_START";
+	public static final String USER_NAME = "USER_NAME";
 	private static final String ME = "@me";
-	private static final String USER_URL = "http://wehuibao.com/api/user/";
 	static final String HOT_URL = "http://wehuibao.com/api/hot/";
 	private static final String DOC_LIST_URL = "http://wehuibao.com/api/doclist/";
 	private ListType lt;
@@ -52,7 +50,9 @@ public class DocListActivity extends SherlockFragmentActivity {
 		case OTHER:
 			userId = listType;
 			fragmentArgs.putString(LIST_URL, DOC_LIST_URL + userId);
-			new FetchUserTask().execute(USER_URL + userId);
+			String userName = intent.getStringExtra(USER_NAME);
+			getSupportActionBar().setTitle(
+					userName + getString(R.string.user_home));
 			break;
 		default:
 			isStart = true;
@@ -67,14 +67,6 @@ public class DocListActivity extends SherlockFragmentActivity {
 				android.R.id.content) == null) {
 			this.getSupportFragmentManager().beginTransaction()
 					.add(android.R.id.content, docListFragment).commit();
-		}
-	}
-
-	class FetchUserTask extends UserFetchTask {
-		@Override
-		public void onPostExecute(AuthList authList) {
-			DocListActivity.this.getSupportActionBar().setTitle(
-					authList.name + getString(R.string.user_home));
 		}
 	}
 }
