@@ -106,12 +106,24 @@ public class DocListFragment extends SherlockListFragment implements
 				isRefresh = true;
 				new DocFetchTask().execute(listUrl);
 			}
+		} else {
+			if (refresh != null) {
+				refresh.setActionView(null);
+			}
 		}
 		adapter = new DocAdapter();
 
 		footer = this.getActivity().getLayoutInflater()
 				.inflate(R.layout.load_more, null);
-		this.getListView().addFooterView(footer);
+		if (hasMore) {
+			if (getListView().getFooterViewsCount() == 0) {
+				getListView().addFooterView(footer);
+			}
+		} else {
+			if (getListView().getFooterViewsCount() > 0) {
+				getListView().removeFooterView(footer);
+			}
+		}
 		loadMore = (TextView) footer.findViewById(R.id.load_more);
 		loadMorePB = (ProgressBar) footer.findViewById(R.id.load_more_pb);
 		loadMore.setOnClickListener(this);
