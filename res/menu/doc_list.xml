@@ -3,7 +3,7 @@
     <item
         android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_menu_refresh"
-        android:showAsAction="always|withText"
+        android:showAsAction="always"
         android:title="@string/menu_refresh">
     </item>
     <item
@@ -13,7 +13,7 @@
     </item>
     <item
         android:id="@+id/menu_home"
-        android:showAsAction="ifRoom"
+        android:showAsAction="never"
         android:icon="@drawable/ic_menu_home"
         android:title="@string/menu_home">
     </item>
