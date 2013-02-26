@@ -28,6 +28,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.wehuibao.json.Auth;
 import com.wehuibao.json.AuthList;
 import com.wehuibao.util.net.ImageDownloader;
@@ -53,7 +56,7 @@ public class ProfileFragment extends SherlockFragment implements
 		setRetainInstance(true);
 		setHasOptionsMenu(true);
 		View view = inflater.inflate(R.layout.profile, container, false);
-		
+
 		profileName = (TextView) view.findViewById(R.id.profileName);
 		profileDesc = (TextView) view.findViewById(R.id.profileDescription);
 		homeButton = (Button) view.findViewById(R.id.homeButton);
@@ -67,17 +70,65 @@ public class ProfileFragment extends SherlockFragment implements
 		fanfouButton = (Button) view.findViewById(R.id.fanfouButton);
 		fanfouButton.setOnClickListener(this);
 		logoutButton = (Button) view.findViewById(R.id.logout);
-		
+
 		return view;
 	}
-	
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.profile, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_hot:
+			Intent hotIntent = new Intent(getActivity(), DocListActivity.class);
+			hotIntent.putExtra(DocListActivity.LIST_TYPE,
+					ListType.HOT.toString());
+			startActivity(hotIntent);
+			return true;
+		case R.id.menu_home:
+			String cookie = getCookie();
+			if (cookie != null) {
+				Intent homeIntent = new Intent(getActivity(),
+						DocListActivity.class);
+				homeIntent.putExtra(DocListActivity.LIST_TYPE,
+						ListType.ME.toString());
+				startActivity(homeIntent);
+			} else {
+				Intent profileIntent = new Intent(getActivity(),
+						ProfileActivity.class);
+				startActivity(profileIntent);
+			}
+			return true;
+		case R.id.menu_profile:
+			Intent profileIntent = new Intent(getActivity(),
+					ProfileActivity.class);
+			SharedPreferences prefs = PreferenceManager
+					.getDefaultSharedPreferences(getActivity()
+							.getApplicationContext());
+			String myUserId = prefs.getString("userId", null);
+			if (myUserId != null) {
+				profileIntent.putExtra(ProfileActivity.USERID, myUserId);
+				String myUserName = prefs.getString("userName", null);
+				profileIntent.putExtra(ProfileActivity.USER_NAME, myUserName);
+			}
+			startActivity(profileIntent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
 	private String getCookie() {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity()
 						.getApplicationContext());
 		return prefs.getString("cookie", null);
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -95,7 +146,7 @@ public class ProfileFragment extends SherlockFragment implements
 			logoutButton.setVisibility(View.VISIBLE);
 			logoutButton.setOnClickListener(this);
 		}
-		
+
 	}
 
 	private Spanned buildAuthLink(String url, String desc) {
@@ -197,16 +248,16 @@ public class ProfileFragment extends SherlockFragment implements
 	}
 
 	class FetchUserTask extends UserFetchTask {
-		
+
 		private ProgressDialog dialog;
-		
+
 		@Override
 		public void onPreExecute() {
 			dialog = new ProgressDialog(getActivity());
 			dialog.setMessage(getString(R.string.loading));
 			dialog.show();
 		}
-		
+
 		@Override
 		public void updateConnection(HttpURLConnection connection) {
 			String cookie = getCookie();
@@ -254,7 +305,8 @@ public class ProfileFragment extends SherlockFragment implements
 				} else {
 					listIntent.putExtra(DocListActivity.LIST_TYPE,
 							authList.userId);
-					listIntent.putExtra(DocListActivity.USER_NAME, authList.name);
+					listIntent.putExtra(DocListActivity.USER_NAME,
+							authList.name);
 				}
 				startActivity(listIntent);
 			}
