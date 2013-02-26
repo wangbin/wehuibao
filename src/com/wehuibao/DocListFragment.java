@@ -290,7 +290,8 @@ public class DocListFragment extends SherlockListFragment implements
 					if (doc.title == null || doc.title.length() == 0) {
 						continue;
 					}
-					if (doc.thumb != null && doc.thumb.image_src != null) {
+					if (!isCancelled() && doc.thumb != null
+							&& doc.thumb.image_src != null) {
 						doc.thumb.image_path = downloadDocThumbnail(
 								doc.thumb.image_src, doc.docId);
 					}
@@ -326,12 +327,14 @@ public class DocListFragment extends SherlockListFragment implements
 
 		@Override
 		protected void onPostExecute(DocList docList) {
+			if (!isAdded()) {
+				return;
+			}
 			if (docList == null) {
-				if (isAdded()) {
-					Toast.makeText(getActivity(),
-							getString(R.string.err_msg_cannot_connet),
-							Toast.LENGTH_SHORT).show();
-				}
+				Toast.makeText(getActivity(),
+						getString(R.string.err_msg_cannot_connet),
+						Toast.LENGTH_SHORT).show();
+
 				return;
 			}
 
@@ -339,6 +342,7 @@ public class DocListFragment extends SherlockListFragment implements
 				loadMorePB.setVisibility(View.GONE);
 				loadMore.setVisibility(View.VISIBLE);
 			}
+
 			if (!hasMore) {
 				DocListFragment.this.getListView().removeFooterView(footer);
 			} else {
@@ -358,13 +362,13 @@ public class DocListFragment extends SherlockListFragment implements
 			}
 			if (fetchedDocs.size() > 0) {
 				adapter.notifyDataSetChanged();
-				if (isAdded()) {
-					Toast.makeText(
-							getActivity(),
-							String.valueOf(fetchedDocs.size())
-									+ getString(R.string.number_of_new_docs),
-							Toast.LENGTH_SHORT).show();
-				}
+
+				Toast.makeText(
+						getActivity(),
+						String.valueOf(fetchedDocs.size())
+								+ getString(R.string.number_of_new_docs),
+						Toast.LENGTH_SHORT).show();
+
 			}
 
 			if (isRefresh) {
@@ -377,50 +381,6 @@ public class DocListFragment extends SherlockListFragment implements
 			}
 		}
 
-		private String downloadDocThumbnail(String image_url, String doc_id) {
-			String root = DocListFragment.this.getActivity()
-					.getExternalFilesDir(null).toString();
-			File avatarDir = new File(root + "/docs/" + doc_id);
-			String image_name = image_url
-					.substring(image_url.lastIndexOf('/') + 1);
-			if (image_name.indexOf('?') != -1) {
-				image_name = image_name.substring(0,
-						image_name.lastIndexOf('?'));
-			}
-			File avatar = new File(avatarDir.toString() + '/' + image_name);
-			if (avatar.exists()) {
-				return avatar.getAbsolutePath();
-			}
-			if (!avatarDir.exists()) {
-				avatarDir.mkdirs();
-			}
-
-			try {
-				URL url = new URL(image_url);
-				HttpURLConnection connection = (HttpURLConnection) url
-						.openConnection();
-				connection.setReadTimeout(50000);
-				connection.connect();
-				InputStream in = connection.getInputStream();
-				FileOutputStream fos = new FileOutputStream(avatar.getPath());
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				byte[] buffer = new byte[1024];
-				int len = 0;
-				try {
-					while ((len = in.read(buffer)) > 0) {
-						bos.write(buffer, 0, len);
-					}
-					bos.flush();
-				} finally {
-					fos.getFD().sync();
-					bos.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				return "";
-			}
-			return avatar.getAbsolutePath();
-		}
 	}
 
 	@Override
@@ -472,5 +432,50 @@ public class DocListFragment extends SherlockListFragment implements
 			startActivity(hotIntent);
 			getActivity().finish();
 		}
+	}
+
+	private String downloadDocThumbnail(String image_url, String doc_id) {
+		if (getActivity() == null) {
+			return "";
+		}
+		String root = getActivity().getExternalFilesDir(null).toString();
+		File avatarDir = new File(root + "/docs/" + doc_id);
+		String image_name = image_url.substring(image_url.lastIndexOf('/') + 1);
+		if (image_name.indexOf('?') != -1) {
+			image_name = image_name.substring(0, image_name.lastIndexOf('?'));
+		}
+		File avatar = new File(avatarDir.toString() + '/' + image_name);
+		if (avatar.exists()) {
+			return avatar.getAbsolutePath();
+		}
+		if (!avatarDir.exists()) {
+			avatarDir.mkdirs();
+		}
+
+		try {
+			URL url = new URL(image_url);
+			HttpURLConnection connection = (HttpURLConnection) url
+					.openConnection();
+			connection.setReadTimeout(50000);
+			connection.connect();
+			InputStream in = connection.getInputStream();
+			FileOutputStream fos = new FileOutputStream(avatar.getPath());
+			BufferedOutputStream bos = new BufferedOutputStream(fos);
+			byte[] buffer = new byte[1024];
+			int len = 0;
+			try {
+				while ((len = in.read(buffer)) > 0) {
+					bos.write(buffer, 0, len);
+				}
+				bos.flush();
+			} finally {
+				fos.getFD().sync();
+				bos.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+		return avatar.getAbsolutePath();
 	}
 }
