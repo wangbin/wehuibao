@@ -107,6 +107,7 @@ public class DocListFragment extends SherlockListFragment implements
 				new DocFetchTask().execute(listUrl);
 			}
 		} else {
+			needFetch = false;
 			if (refresh != null) {
 				refresh.setActionView(null);
 			}
