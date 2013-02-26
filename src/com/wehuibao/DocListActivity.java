@@ -12,6 +12,7 @@ public class DocListActivity extends SherlockFragmentActivity {
 	public static final String LIST_URL = "LIST_URL";
 	public static final String IS_START = "IS_START";
 	public static final String USER_NAME = "USER_NAME";
+	public static final String USER_ID = "USER_ID";
 	private static final String ME = "@me";
 	static final String HOT_URL = "http://wehuibao.com/api/hot/";
 	private static final String DOC_LIST_URL = "http://wehuibao.com/api/doclist/";
@@ -51,6 +52,8 @@ public class DocListActivity extends SherlockFragmentActivity {
 			userId = listType;
 			fragmentArgs.putString(LIST_URL, DOC_LIST_URL + userId);
 			String userName = intent.getStringExtra(USER_NAME);
+			fragmentArgs.putString(USER_NAME, userName);
+			fragmentArgs.putString(USER_ID, userId);
 			getSupportActionBar().setTitle(
 					userName + getString(R.string.user_home));
 			break;

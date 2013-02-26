@@ -197,13 +197,23 @@ public class DocListFragment extends SherlockListFragment implements
 		if (item.getItemId() == R.id.menu_profile) {
 			Intent profileIntent = new Intent(getActivity(),
 					ProfileActivity.class);
-			SharedPreferences prefs = PreferenceManager
-					.getDefaultSharedPreferences(getActivity()
-							.getApplicationContext());
-			String userId = prefs.getString("userId", "");
-			String userName = prefs.getString("userName", "");
-			profileIntent.putExtra(ProfileActivity.USERID, userId);
-			profileIntent.putExtra(ProfileActivity.USER_NAME, userName);
+			String userName = getArguments().getString(
+					DocListActivity.USER_NAME);
+			if (userName != null) {
+				String userId = getArguments().getString(
+						DocListActivity.USER_ID);
+				profileIntent.putExtra(ProfileActivity.USERID, userId);
+				profileIntent.putExtra(ProfileActivity.USER_NAME, userName);
+			} else {
+				SharedPreferences prefs = PreferenceManager
+						.getDefaultSharedPreferences(getActivity()
+								.getApplicationContext());
+				String userId = prefs.getString("userId", "");
+				userName = prefs.getString("userName", "");
+				profileIntent.putExtra(ProfileActivity.USERID, userId);
+				profileIntent.putExtra(ProfileActivity.USER_NAME, userName);
+			}
+
 			startActivity(profileIntent);
 		}
 		return super.onOptionsItemSelected(item);
